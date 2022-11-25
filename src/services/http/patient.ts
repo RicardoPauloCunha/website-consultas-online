@@ -1,5 +1,4 @@
 import { get, post, put } from "../api";
-
 import Paciente from "../entities/paciente";
 
 const ROOT = "pacientes/";
@@ -29,7 +28,7 @@ export const postPatientHttp = async (requestData: PostPatientRequest): Promise<
 }
 
 interface PutPatientRequest extends PostPatientRequest {
-    
+
 }
 
 export const putPatientHttp = async (requestData: PutPatientRequest): Promise<void> => {

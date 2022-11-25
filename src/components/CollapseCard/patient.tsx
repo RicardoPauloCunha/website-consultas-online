@@ -1,8 +1,7 @@
-import { formatCellphone, formatCpf } from "../../util/formatString";
-
 import { AccordionBody, AccordionHeader, UncontrolledAccordion } from "reactstrap";
-import { CollapseCardEl } from "./styles";
+import { formatCellphone, formatCpf } from "../../util/formatString";
 import DataText from "../DataText";
+import { CollapseCardEl } from "./styles";
 
 type PatientCollapseCardProps = {
     cpf: string;

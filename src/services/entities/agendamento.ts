@@ -1,9 +1,8 @@
-import Usuario from "./usuario";
-import Medico from "./medico";
-import Paciente from "./paciente";
-
 import StatusAgendamentoEnum from "../enums/statusAgendamento";
 import TipoEspecialidadeEnum from "../enums/tipoEspecialidade";
+import Medico from "./medico";
+import Paciente from "./paciente";
+import Usuario from "./usuario";
 
 interface Agendamento {
     idAgendamento: number;

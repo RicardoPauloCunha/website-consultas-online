@@ -1,4 +1,4 @@
-import { Button, ButtonProps, Spinner } from "reactstrap"
+import { Button, ButtonProps, Spinner } from "reactstrap";
 
 interface LoadingButtonProps extends ButtonProps {
     text: string;

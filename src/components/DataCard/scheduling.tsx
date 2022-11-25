@@ -1,10 +1,9 @@
-import StatusAgendamentoEnum, { defineColorStatusAgendamento, getValueStatusAgendamento } from "../../services/enums/statusAgendamento";
-
 import { Button } from "reactstrap";
-import { DataCardEl } from "./styles";
+import StatusAgendamentoEnum, { defineColorStatusAgendamento, getValueStatusAgendamento } from "../../services/enums/statusAgendamento";
+import TipoEspecialidadeEnum, { getValueTipoEspecialidade } from "../../services/enums/tipoEspecialidade";
 import DataText from "../DataText";
 import StatusBadge from "../StatusBadge";
-import TipoEspecialidadeEnum, { getValueTipoEspecialidade } from "../../services/enums/tipoEspecialidade";
+import { DataCardEl } from "./styles";
 
 type SchedulingCardProps = {
     id: number;

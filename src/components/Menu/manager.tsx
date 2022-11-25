@@ -1,8 +1,7 @@
 import { NavLink as Link, Outlet } from 'react-router-dom';
+import { Nav, NavItem, NavLink } from 'reactstrap';
 
-import { NavLink, NavItem, Nav } from 'reactstrap';
-
-const EmployeeMenu = () => {
+const ManagerMenu = () => {
     return (
         <>
             <Nav
@@ -42,4 +41,4 @@ const EmployeeMenu = () => {
     );
 }
 
-export default EmployeeMenu;
+export default ManagerMenu;

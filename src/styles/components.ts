@@ -1,6 +1,6 @@
-import styled from 'styled-components';
-import { Modal } from 'reactstrap';
 import { Form as Unform } from '@unform/web';
+import { Modal } from 'reactstrap';
+import styled from 'styled-components';
 
 export const Form = styled(Unform)`
     border-radius: 0.25rem;

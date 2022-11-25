@@ -1,7 +1,6 @@
-import { useEffect, useRef } from 'react';
 import { useField } from '@unform/core';
-
-import { FormGroup, Input, Label, InputProps, FormFeedback } from 'reactstrap';
+import { useEffect, useRef } from 'react';
+import { FormFeedback, FormGroup, Input, InputProps, Label } from 'reactstrap';
 
 interface SelectInputProps extends InputProps {
     name: string;

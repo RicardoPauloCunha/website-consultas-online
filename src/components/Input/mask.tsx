@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
 import { useField } from '@unform/core';
+import { useEffect, useRef, useState } from 'react';
 import ReactInputMask from 'react-input-mask';
-
-import { FormGroup, Input, Label, InputProps, FormFeedback } from 'reactstrap';
+import { FormFeedback, FormGroup, Input, InputProps, Label } from 'reactstrap';
 
 interface MaskInputProps extends InputProps {
     name: string;

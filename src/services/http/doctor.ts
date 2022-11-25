@@ -1,7 +1,6 @@
 import { get, getParams, post, put } from "../api";
-
 import Medico from "../entities/medico";
-import { PostEmployeeRequest } from "./employee";
+import { PostUserRequest } from "./user";
 
 const ROOT = "medicos/";
 
@@ -19,13 +18,13 @@ export const listDoctorByParamsHttp = async (paramsData: ListDoctorByParams): Pr
     return data;
 }
 
-interface PostDoctorRequest extends PostEmployeeRequest {
+interface PostDoctorRequest extends PostUserRequest {
     crm: string;
     tipoEspecialidade: number;
 }
 
 export const postDoctorHttp = async (requestData: PostDoctorRequest): Promise<void> => {
-    await post<PostEmployeeRequest, void>(ROOT, requestData);
+    await post<PostUserRequest, void>(ROOT, requestData);
 }
 
 interface PutDoctorRequest extends PostDoctorRequest {

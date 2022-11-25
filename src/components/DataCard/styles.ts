@@ -52,7 +52,7 @@ export const DataCardEl = styled.div`
         }
     }
 
-    &.data-card-employee {
+    &.data-card-user {
         grid-template-columns: repeat(2, 1fr) 5rem;
         grid-template-rows: repeat(1, auto);
         grid-template-areas:

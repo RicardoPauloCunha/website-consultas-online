@@ -1,29 +1,27 @@
-import { useEffect, useRef, useState } from "react";
 import { FormHandles, SubmitHandler } from "@unform/core";
+import { useEffect, useRef, useState } from "react";
+import { Col, Row } from "reactstrap";
 import * as Yup from "yup";
-
+import PatientCollapseCard from "../../components/CollapseCard/patient";
+import FieldInput from "../../components/Input";
+import MaskInput from "../../components/Input/mask";
+import SelectInput from "../../components/Input/select";
+import LoadingButton from "../../components/LoadingButton";
+import Warning from "../../components/Warning";
 import { useAuth } from "../../contexts/auth";
 import Medico from "../../services/entities/medico";
 import Paciente from "../../services/entities/paciente";
 import StatusAgendamentoEnum from "../../services/enums/statusAgendamento";
 import { listTipoEspecialidade } from "../../services/enums/tipoEspecialidade";
 import TipoUsuarioEnum from "../../services/enums/tipoUsuario";
-import { postSchedulingHttp } from "../../services/http/scheduling";
 import { listDoctorByParamsHttp } from "../../services/http/doctor";
 import { getPatientByCpfHttp } from "../../services/http/patient";
-import { WarningTuple } from "../../util/getHttpErrors";
-import { normalizeString } from "../../util/formatString";
-import getValidationErrors from "../../util/getValidationErrors";
-import DocumentTitle from "../../util/documentTitle";
-
-import { Col, Row } from "reactstrap";
+import { postSchedulingHttp } from "../../services/http/scheduling";
 import { Form } from "../../styles/components";
-import Warning from "../../components/Warning";
-import LoadingButton from "../../components/LoadingButton";
-import FieldInput from "../../components/Input";
-import SelectInput from "../../components/Input/select";
-import MaskInput from "../../components/Input/mask";
-import PatientCollapseCard from "../../components/CollapseCard/patient";
+import DocumentTitle from "../../util/documentTitle";
+import { normalizeString } from "../../util/formatString";
+import { WarningTuple } from "../../util/getHttpErrors";
+import getValidationErrors from "../../util/getValidationErrors";
 
 type SchedulingFormData = {
     patientCpf: string;

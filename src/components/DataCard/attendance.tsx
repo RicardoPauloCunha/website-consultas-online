@@ -1,9 +1,8 @@
 
-import { normalizeDate } from "../../util/formatString";
-
-import { DataCardEl } from "./styles";
-import DataText from "../DataText";
 import TipoEspecialidadeEnum, { getValueTipoEspecialidade } from "../../services/enums/tipoEspecialidade";
+import { normalizeDate } from "../../util/formatString";
+import DataText from "../DataText";
+import { DataCardEl } from "./styles";
 
 type AttendanceCardProps = {
     id: number;

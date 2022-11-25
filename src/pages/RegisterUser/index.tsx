@@ -1,63 +1,59 @@
+import { FormHandles, SubmitHandler } from "@unform/core";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { FormHandles, SubmitHandler } from "@unform/core";
 import * as Yup from 'yup';
-
+import FieldInput from "../../components/Input";
+import SelectInput from "../../components/Input/select";
+import LoadingButton from "../../components/LoadingButton";
+import Warning from "../../components/Warning";
 import Medico from "../../services/entities/medico";
 import Usuario from "../../services/entities/usuario";
-import TipoUsuarioEnum, { listTipoUsuarioToManage } from "../../services/enums/tipoUsuario";
 import { listTipoEspecialidade } from "../../services/enums/tipoEspecialidade";
-import { getEmployeeByIdHttp, postEmployeeHttp, putEmployeeHttp } from "../../services/http/employee";
+import TipoUsuarioEnum from "../../services/enums/tipoUsuario";
 import { getDoctorByIdHttp, postDoctorHttp, putDoctorHttp } from "../../services/http/doctor";
+import { getUserByIdHttp, postUserHttp, putUserHttp } from "../../services/http/user";
+import { Form } from "../../styles/components";
+import DocumentTitle from "../../util/documentTitle";
 import { WarningTuple } from "../../util/getHttpErrors";
 import getValidationErrors from "../../util/getValidationErrors";
-import DocumentTitle from "../../util/documentTitle";
 
-import { Form } from "../../styles/components";
-import SelectInput from "../../components/Input/select";
-import Warning from "../../components/Warning";
-import FieldInput from "../../components/Input";
-import LoadingButton from "../../components/LoadingButton";
-
-interface EmployeeFormData {
+interface UserFormData {
     name: string;
     email: string;
     password: string;
     confirmPassword: string;
-    userType: number;
 }
 
-interface DoctorFormData extends EmployeeFormData {
+interface DoctorFormData extends UserFormData {
     crm: string;
     specialtyType: number;
 }
 
-const RegisterEmployee = () => {
+const RegisterUser = () => {
     const location = useLocation();
     const routeParams = useParams();
-    const employeeFormRef = useRef<FormHandles>(null);
+    const userFormRef = useRef<FormHandles>(null);
     const doctorFormRef = useRef<FormHandles>(null);
 
-    const _employeeTypes = listTipoUsuarioToManage();
     const _specialtyTypes = listTipoEspecialidade();
 
     const [isLoading, setIsLoading] = useState<"register" | "get" | "">("");
     const [warning, setWarning] = useState<WarningTuple>(["", ""]);
     const [isDoctor, setIsDoctor] = useState(location.pathname.split("/")[1] === "medicos");
-    const [isEdition, setIsEdition] = useState(routeParams.employeeId !== undefined || routeParams.doctorId !== undefined);
+    const [isEdition, setIsEdition] = useState(routeParams.userId !== undefined || routeParams.doctorId !== undefined);
 
-    const [editedEmployee, setEditedEmployee] = useState<Usuario | undefined>(undefined);
+    const [editedUser, setEditedUser] = useState<Usuario | undefined>(undefined);
     const [editedDoctor, setEditedDoctor] = useState<Medico | undefined>(undefined);
 
     useEffect(() => {
         setIsLoading("");
         setWarning(["", ""]);
         setEditedDoctor(undefined);
-        setEditedEmployee(undefined);
+        setEditedUser(undefined);
 
-        if (routeParams.employeeId !== undefined) {
+        if (routeParams.userId !== undefined) {
             setIsEdition(true);
-            getEmployee();
+            getUser();
         }
         else if (routeParams.doctorId !== undefined) {
             setIsEdition(true);
@@ -65,7 +61,7 @@ const RegisterEmployee = () => {
         }
         else {
             setIsEdition(false);
-            employeeFormRef.current?.reset();
+            userFormRef.current?.reset();
             doctorFormRef.current?.reset();
         }
 
@@ -77,14 +73,13 @@ const RegisterEmployee = () => {
     }, [routeParams]);
 
     useEffect(() => {
-        if (!isDoctor && editedEmployee !== undefined) {
+        if (!isDoctor && editedUser !== undefined) {
             setTimeout(() => {
-                employeeFormRef.current?.setData({
-                    name: editedEmployee.nome,
-                    email: editedEmployee.email,
-                    password: editedEmployee.senha,
-                    confirmPassword: editedEmployee.senha,
-                    userType: editedEmployee.tipoUsuario.toString()
+                userFormRef.current?.setData({
+                    name: editedUser.nome,
+                    email: editedUser.email,
+                    password: editedUser.senha,
+                    confirmPassword: editedUser.senha
                 });
             }, 100);
         }
@@ -100,16 +95,16 @@ const RegisterEmployee = () => {
                 });
             }, 100);
         }
-    }, [isDoctor, editedEmployee, editedDoctor])
+    }, [isDoctor, editedUser, editedDoctor])
 
-    const getEmployee = () => {
-        let id = Number(routeParams.employeeId);
+    const getUser = () => {
+        let id = Number(routeParams.userId);
         if (isNaN(id))
             return;
 
         setIsLoading("get");
-        getEmployeeByIdHttp(id).then(response => {
-            setEditedEmployee(response);
+        getUserByIdHttp(id).then(response => {
+            setEditedUser(response);
             setIsLoading("");
         }).catch(() => {
             setWarning(["danger", "Usuário não encontrado."]);
@@ -130,11 +125,11 @@ const RegisterEmployee = () => {
         });
     }
 
-    const submitEmployeeForm: SubmitHandler<EmployeeFormData> = async (data, { reset }) => {
+    const submitUserForm: SubmitHandler<UserFormData> = async (data, { reset }) => {
         try {
             setIsLoading("register");
             setWarning(["", ""]);
-            employeeFormRef.current?.setErrors({});
+            userFormRef.current?.setErrors({});
 
             const shema = Yup.object().shape({
                 name: Yup.string().trim()
@@ -144,39 +139,35 @@ const RegisterEmployee = () => {
                 password: Yup.string().trim()
                     .required("Coloque a senha do usuário."),
                 confirmPassword: Yup.string()
-                    .oneOf([Yup.ref('password'), null], 'As senhas precisam ser iguais.'),
-                userType: Yup.string()
-                    .required("Selecione o tipo de usuário.")
+                    .oneOf([Yup.ref('password'), null], 'As senhas precisam ser iguais.')
             });
 
             await shema.validate(data, {
                 abortEarly: false
             });
 
-            data.userType = Number(data.userType);
-
-            let employeeData = {
+            let userData = {
                 nome: data.name,
                 email: data.email,
                 senha: data.password,
-                tipoUsuario: data.userType
+                tipoUsuario: TipoUsuarioEnum.Recepcionista
             };
 
             if (!isEdition) {
-                await postEmployeeHttp(employeeData).then(() => {
+                await postUserHttp(userData).then(() => {
                     setWarning(["success", "Usuário cadastrado com sucesso."]);
                     reset();
                 }).catch(() => {
                     setWarning(["danger", "Não foi possível cadastrar o usuário."]);
                 }).finally(() => { setIsLoading(""); });
             }
-            else if (editedEmployee !== undefined) {
-                await putEmployeeHttp({
-                    ...employeeData,
-                    idUsuario: editedEmployee.idUsuario
+            else if (editedUser !== undefined) {
+                await putUserHttp({
+                    ...userData,
+                    idUsuario: editedUser.idUsuario
                 }).then(() => {
                     setWarning(["success", "Usuário editado com sucesso."]);
-                    editedEmployee.nome = data.name;
+                    editedUser.nome = data.name;
                 }).catch(() => {
                     setWarning(["danger", "Não foi possível editar o usuário."]);
                 }).finally(() => { setIsLoading(""); });
@@ -184,7 +175,7 @@ const RegisterEmployee = () => {
         }
         catch (err) {
             if (err instanceof Yup.ValidationError)
-                employeeFormRef.current?.setErrors(getValidationErrors(err));
+                userFormRef.current?.setErrors(getValidationErrors(err));
             setWarning(["warning", "Campos do usuário inválidos."]);
             setIsLoading("");
         }
@@ -259,8 +250,8 @@ const RegisterEmployee = () => {
             <h1>{isEdition ? `Edição de ${isDoctor ? "médico" : "usuário"}` : `Cadastro de ${isDoctor ? "médico" : "usuário"}`}</h1>
 
             <Form
-                ref={isDoctor ? doctorFormRef : employeeFormRef}
-                onSubmit={isDoctor ? submitDoctorForm : submitEmployeeForm}
+                ref={isDoctor ? doctorFormRef : userFormRef}
+                onSubmit={isDoctor ? submitDoctorForm : submitUserForm}
                 className="form-data"
             >
                 <FieldInput
@@ -290,35 +281,23 @@ const RegisterEmployee = () => {
                     type="password"
                 />
 
-                {isDoctor
-                    ? <>
-                        <FieldInput
-                            name='crm'
-                            label='CRM'
-                            placeholder='Coloque o CRM'
-                        />
+                {isDoctor && <>
+                    <FieldInput
+                        name='crm'
+                        label='CRM'
+                        placeholder='Coloque o CRM'
+                    />
 
-                        <SelectInput
-                            name='specialtyType'
-                            label='Especialidade'
-                            placeholder='Selecione a especialidade'
-                            options={_specialtyTypes.map((x, index) => ({
-                                value: `${index + 1}`,
-                                label: x
-                            }))}
-                        />
-                    </>
-                    : <SelectInput
-                        name='userType'
-                        label='Tipo de usuário'
-                        placeholder='Selecione o tipo de usuário'
-                        options={_employeeTypes.map((x, index) => ({
+                    <SelectInput
+                        name='specialtyType'
+                        label='Especialidade'
+                        placeholder='Selecione a especialidade'
+                        options={_specialtyTypes.map((x, index) => ({
                             value: `${index + 1}`,
                             label: x
                         }))}
-                        disabled={isEdition}
                     />
-                }
+                </>}
 
                 <Warning value={warning} />
 
@@ -333,4 +312,4 @@ const RegisterEmployee = () => {
     );
 }
 
-export default RegisterEmployee;
+export default RegisterUser;

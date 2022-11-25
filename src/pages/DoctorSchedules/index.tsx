@@ -1,29 +1,27 @@
+import { FormHandles, SubmitHandler } from "@unform/core";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FormHandles, SubmitHandler } from "@unform/core";
+import { Button, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import * as Yup from "yup";
-
+import SchedulingCard from "../../components/DataCard/scheduling";
+import DataText from "../../components/DataText";
+import FieldInput from "../../components/Input";
+import SelectInput from "../../components/Input/select";
+import LoadingButton from "../../components/LoadingButton";
+import SpinnerBlock from "../../components/SpinnerBlock";
+import StatusBadge from "../../components/StatusBadge";
+import Warning from "../../components/Warning";
 import { useAuth } from "../../contexts/auth";
 import Agendamento from "../../services/entities/agendamento";
 import StatusAgendamentoEnum, { defineColorStatusAgendamento, getValueStatusAgendamento, listStatusAgendamento } from "../../services/enums/statusAgendamento";
 import { getValueTipoEspecialidade } from "../../services/enums/tipoEspecialidade";
-import { listDoctorSchedulingByParamsHttp, putSchedulingHttp } from "../../services/http/scheduling";
 import { postAttendanceHttp } from "../../services/http/attendance";
+import { listDoctorSchedulingByParamsHttp, putSchedulingHttp } from "../../services/http/scheduling";
+import { DataModal, Form, TextGroupGrid } from "../../styles/components";
+import DocumentTitle from "../../util/documentTitle";
+import { normalizeDate, normalizeString } from "../../util/formatString";
 import { WarningTuple } from "../../util/getHttpErrors";
 import getValidationErrors from "../../util/getValidationErrors";
-import { normalizeString, normalizeDate } from "../../util/formatString";
-import DocumentTitle from "../../util/documentTitle";
-
-import { Button, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
-import { DataModal, Form, TextGroupGrid } from "../../styles/components";
-import SelectInput from "../../components/Input/select";
-import SpinnerBlock from "../../components/SpinnerBlock";
-import Warning from "../../components/Warning";
-import DataText from "../../components/DataText";
-import FieldInput from "../../components/Input";
-import LoadingButton from "../../components/LoadingButton";
-import StatusBadge from "../../components/StatusBadge";
-import SchedulingCard from "../../components/DataCard/scheduling";
 
 type AttendanceFormData = {
     description: string;
@@ -142,7 +140,7 @@ const DoctorSchedules = () => {
     const handlerChangeScheduleStatus = (optionValue: string) => {
         let scheduleStatus = Number(optionValue);
         let period: number | undefined = Number(filterFormRef.current?.getFieldValue("period"));
-        
+
         if (isNaN(period) || period === 0)
             period = undefined;
 
@@ -152,7 +150,7 @@ const DoctorSchedules = () => {
     const handlerChangePeriod = (optionValue: string) => {
         let period = Number(optionValue);
         let scheduleStatus: number | undefined = Number(filterFormRef.current?.getFieldValue("scheduleStatus"));
-        
+
         if (isNaN(scheduleStatus) || scheduleStatus === 0)
             scheduleStatus = undefined;
 

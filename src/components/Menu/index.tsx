@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
-import { NavLink as Link, useNavigate } from 'react-router-dom';
 import { FaUser } from 'react-icons/fa';
-
+import { NavLink as Link, useNavigate } from 'react-router-dom';
+import { Button, Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { useAuth } from '../../contexts/auth';
 import { getLoggedUser, handlerLogout } from '../../localStorages/auth';
 import TipoUsuarioEnum from '../../services/enums/tipoUsuario';
-
-import { Button, Collapse, NavLink, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem } from 'reactstrap';
 import { NavbarProfile } from './styles';
 
 const Menu = () => {

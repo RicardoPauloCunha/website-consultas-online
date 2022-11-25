@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-
-import Atendimento from "../../services/entities/atendimento";
-import { listAttendanceByCpfHttp } from "../../services/http/attendance";
-import { WarningTuple } from "../../util/getHttpErrors";
-import DocumentTitle from "../../util/documentTitle";
-
-import SpinnerBlock from "../../components/SpinnerBlock";
-import Warning from "../../components/Warning";
 import PatientCollapseCard from "../../components/CollapseCard/patient";
 import AttendanceCard from "../../components/DataCard/attendance";
+import SpinnerBlock from "../../components/SpinnerBlock";
+import Warning from "../../components/Warning";
+import Atendimento from "../../services/entities/atendimento";
+import { listAttendanceByCpfHttp } from "../../services/http/attendance";
+import DocumentTitle from "../../util/documentTitle";
+import { WarningTuple } from "../../util/getHttpErrors";
 
 const PatientAttendances = () => {
     const routeParams = useParams();

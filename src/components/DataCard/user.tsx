@@ -1,19 +1,17 @@
 import { useNavigate } from "react-router-dom";
-
-import TipoUsuarioEnum, { getValueTipoUsuario } from "../../services/enums/tipoUsuario";
-
 import { Button } from "reactstrap";
-import { DataCardEl } from "./styles";
+import TipoUsuarioEnum, { getValueTipoUsuario } from "../../services/enums/tipoUsuario";
 import DataText from "../DataText";
+import { DataCardEl } from "./styles";
 
-type EmployeeCardProps = {
+type UserCardProps = {
     id: number;
     name: string;
     email: string;
     userType: TipoUsuarioEnum;
 }
 
-const EmployeeCard = ({ id, name, email, userType }: EmployeeCardProps) => {
+const UserCard = ({ id, name, email, userType }: UserCardProps) => {
     const navigate = useNavigate();
 
     const onClickEditData = () => {
@@ -24,7 +22,7 @@ const EmployeeCard = ({ id, name, email, userType }: EmployeeCardProps) => {
     }
 
     return (
-        <DataCardEl className="data-card-employee" >
+        <DataCardEl className="data-card-user" >
             <DataText
                 label={name}
                 value={email}
@@ -45,4 +43,4 @@ const EmployeeCard = ({ id, name, email, userType }: EmployeeCardProps) => {
     );
 }
 
-export default EmployeeCard;
+export default UserCard;

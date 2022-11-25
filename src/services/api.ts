@@ -1,5 +1,5 @@
-import Axios from './axios';
 import { AxiosResponse } from 'axios';
+import Axios from './axios';
 
 export async function get<R>(path: string): Promise<AxiosResponse<R>> {
     return await Axios.get(path);

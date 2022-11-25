@@ -1,5 +1,4 @@
 import { getParams, post, put } from "../api";
-
 import Agendamento from "../entities/agendamento";
 import StatusAgendamentoEnum from "../enums/statusAgendamento";
 

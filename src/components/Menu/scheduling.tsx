@@ -1,6 +1,5 @@
 import { NavLink as Link, Outlet } from 'react-router-dom';
-
-import { NavLink, NavItem, Nav } from 'reactstrap';
+import { Nav, NavItem, NavLink } from 'reactstrap';
 
 const SchedulingMenu = () => {
     return (

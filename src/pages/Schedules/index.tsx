@@ -1,26 +1,24 @@
-import { useEffect, useRef, useState } from "react";
 import { FormHandles } from "@unform/core";
-
-import { useAuth } from "../../contexts/auth";
-import Agendamento from "../../services/entities/agendamento";
-import TipoUsuarioEnum from "../../services/enums/tipoUsuario";
-import { getValueTipoEspecialidade } from "../../services/enums/tipoEspecialidade";
-import StatusAgendamentoEnum, { defineColorStatusAgendamento, getValueStatusAgendamento, listStatusAgendamento } from "../../services/enums/statusAgendamento";
-import { listReceptionistSchedulingByParamsHttp, putSchedulingHttp } from "../../services/http/scheduling";
-import { WarningTuple } from "../../util/getHttpErrors";
-import { formatCellphone, formatCpf, normalizeString, normalizeDate } from "../../util/formatString";
-import DocumentTitle from "../../util/documentTitle";
-
+import { useEffect, useRef, useState } from "react";
 import { Button, Col, ModalBody, ModalFooter, ModalHeader, Row } from "reactstrap";
-import { DataModal, Form, TextGroupGrid } from "../../styles/components";
-import SelectInput from "../../components/Input/select";
-import SpinnerBlock from "../../components/SpinnerBlock";
-import Warning from "../../components/Warning";
+import SchedulingCard from "../../components/DataCard/scheduling";
 import DataText from "../../components/DataText";
 import MaskInput from "../../components/Input/mask";
+import SelectInput from "../../components/Input/select";
 import LoadingButton from "../../components/LoadingButton";
+import SpinnerBlock from "../../components/SpinnerBlock";
 import StatusBadge from "../../components/StatusBadge";
-import SchedulingCard from "../../components/DataCard/scheduling";
+import Warning from "../../components/Warning";
+import { useAuth } from "../../contexts/auth";
+import Agendamento from "../../services/entities/agendamento";
+import StatusAgendamentoEnum, { defineColorStatusAgendamento, getValueStatusAgendamento, listStatusAgendamento } from "../../services/enums/statusAgendamento";
+import { getValueTipoEspecialidade } from "../../services/enums/tipoEspecialidade";
+import TipoUsuarioEnum from "../../services/enums/tipoUsuario";
+import { listReceptionistSchedulingByParamsHttp, putSchedulingHttp } from "../../services/http/scheduling";
+import { DataModal, Form, TextGroupGrid } from "../../styles/components";
+import DocumentTitle from "../../util/documentTitle";
+import { formatCellphone, formatCpf, normalizeDate, normalizeString } from "../../util/formatString";
+import { WarningTuple } from "../../util/getHttpErrors";
 
 type ModalString = "update" | "schedule" | "";
 

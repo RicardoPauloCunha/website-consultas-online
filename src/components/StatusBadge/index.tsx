@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import { Badge } from "reactstrap";
 import { StatusBadgeEl } from "./styles";
 

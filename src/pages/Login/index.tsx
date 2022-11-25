@@ -1,22 +1,20 @@
+import { FormHandles, SubmitHandler } from '@unform/core';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FormHandles, SubmitHandler } from '@unform/core';
 import * as Yup from 'yup';
-
+import FieldInput from '../../components/Input';
+import LoadingButton from '../../components/LoadingButton';
+import Warning from '../../components/Warning';
 import { useAuth } from '../../contexts/auth';
 import { getLoggedUser, handlerSignIn } from '../../localStorages/auth';
 import Usuario from '../../services/entities/usuario';
 import TipoUsuarioEnum from '../../services/enums/tipoUsuario';
-import { getEmployeeByIdHttp as getUserByIdHttp, postLoginUserHttp } from '../../services/http/employee';
 import { getPatientCpfByUserIdHttp } from '../../services/http/patient';
+import { getUserByIdHttp, postLoginUserHttp } from '../../services/http/user';
+import { Form } from '../../styles/components';
+import DocumentTitle from '../../util/documentTitle';
 import { WarningTuple } from '../../util/getHttpErrors';
 import getValidationErrors from '../../util/getValidationErrors';
-import DocumentTitle from '../../util/documentTitle';
-
-import { Form } from '../../styles/components';
-import FieldInput from '../../components/Input';
-import Warning from '../../components/Warning';
-import LoadingButton from '../../components/LoadingButton';
 
 type LocationData = {
     from: Location;

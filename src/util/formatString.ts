@@ -31,7 +31,7 @@ export const normalizeDate = (value: string | undefined) => {
             let dates = value.split("/");
             return `${dates[2]}-${dates[1]}-${dates[0]}T00:00:00`;
         }
-        else if (!value.includes("T")){
+        else if (!value.includes("T")) {
             return `${value}T00:00:00`;
         }
 

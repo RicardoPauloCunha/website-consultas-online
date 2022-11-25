@@ -1,24 +1,22 @@
-import { useEffect, useRef, useState } from "react";
 import { FormHandles, SubmitHandler } from "@unform/core";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
-
+import FieldInput from "../../components/Input";
+import MaskInput from "../../components/Input/mask";
+import SelectInput from "../../components/Input/select";
+import LoadingButton from "../../components/LoadingButton";
+import Warning from "../../components/Warning";
 import { useAuth } from "../../contexts/auth";
 import { listGeneroPaciente } from "../../services/enums/generoPaciente";
 import TipoUsuarioEnum from "../../services/enums/tipoUsuario";
 import { getPatientByCpfHttp, postPatientHttp, putPatientHttp } from "../../services/http/patient";
-import { WarningTuple } from "../../util/getHttpErrors";
-import { normalizeString, normalizeDate } from "../../util/formatString";
-import getValidationErrors from "../../util/getValidationErrors";
-import { concatenateAddress, splitAddress } from "../../util/formatAddress";
-import DocumentTitle from "../../util/documentTitle";
-
 import { Form } from "../../styles/components";
-import Warning from "../../components/Warning";
-import LoadingButton from "../../components/LoadingButton";
-import FieldInput from "../../components/Input";
-import SelectInput from "../../components/Input/select";
-import MaskInput from "../../components/Input/mask";
+import DocumentTitle from "../../util/documentTitle";
+import { concatenateAddress, splitAddress } from "../../util/formatAddress";
+import { normalizeDate, normalizeString } from "../../util/formatString";
+import { WarningTuple } from "../../util/getHttpErrors";
+import getValidationErrors from "../../util/getValidationErrors";
 
 type PatientFormData = {
     cpf: string;

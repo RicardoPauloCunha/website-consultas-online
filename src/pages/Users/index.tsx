@@ -1,37 +1,35 @@
 import { useEffect, useState } from "react";
-
-import Usuario from "../../services/entities/usuario";
-import { listTipoUsuarioToManage } from "../../services/enums/tipoUsuario";
-import { listEmployeeByParamsHttp } from "../../services/http/employee";
-import { WarningTuple } from "../../util/getHttpErrors";
-import DocumentTitle from "../../util/documentTitle";
-
-import { Form } from "../../styles/components";
+import UserCard from "../../components/DataCard/user";
 import SelectInput from "../../components/Input/select";
 import SpinnerBlock from "../../components/SpinnerBlock";
 import Warning from "../../components/Warning";
-import EmployeeCard from "../../components/DataCard/employee";
+import Usuario from "../../services/entities/usuario";
+import { listTipoUsuarioToManage } from "../../services/enums/tipoUsuario";
+import { listUserByParamsHttp } from "../../services/http/user";
+import { Form } from "../../styles/components";
+import DocumentTitle from "../../util/documentTitle";
+import { WarningTuple } from "../../util/getHttpErrors";
 
-const Employees = () => {
-    const _employeeTypes = listTipoUsuarioToManage();
+const Users = () => {
+    const _userTypes = listTipoUsuarioToManage();
 
     const [isLoading, setIsLoading] = useState<"get" | "status" | "">("");
     const [warning, setWarning] = useState<WarningTuple>(["", ""]);
 
-    const [employees, setEmployees] = useState<Usuario[]>([]);
+    const [users, setUsers] = useState<Usuario[]>([]);
 
     useEffect(() => {
-        getEmployees(0);
+        getUsers(0);
     }, []);
 
-    const getEmployees = (employeeType: number) => {
+    const getUsers = (userType: number) => {
         setWarning(["", ""]);
 
         setIsLoading("get");
-        listEmployeeByParamsHttp({
-            tipoFuncionario: employeeType
+        listUserByParamsHttp({
+            tipoFuncionario: userType
         }).then(response => {
-            setEmployees([...response]);
+            setUsers([...response]);
 
             if (response.length === 0)
                 setWarning(["warning", "Nenhum funcionário foi encontrado."]);
@@ -40,9 +38,9 @@ const Employees = () => {
         });
     }
 
-    const handlerChangeEmployeeType = (optionValue: string) => {
-        let employeeType = Number(optionValue);
-        getEmployees(employeeType);
+    const handlerChangeUserType = (optionValue: string) => {
+        let userType = Number(optionValue);
+        getUsers(userType);
     }
 
     DocumentTitle("Funcionários | CM");
@@ -57,14 +55,14 @@ const Employees = () => {
                 className="form-search"
             >
                 <SelectInput
-                    name='employeeType'
+                    name='userType'
                     label='Tipo de funcionário'
                     placeholder='Filtrar pelo tipo de funcionário'
-                    options={_employeeTypes.map((x, index) => ({
+                    options={_userTypes.map((x, index) => ({
                         value: `${index + 1}`,
                         label: x
                     }))}
-                    handlerChange={handlerChangeEmployeeType}
+                    handlerChange={handlerChangeUserType}
                 />
 
                 <Warning value={warning} />
@@ -72,8 +70,8 @@ const Employees = () => {
 
             {isLoading === "get" && <SpinnerBlock />}
 
-            {employees.map(x => (
-                <EmployeeCard
+            {users.map(x => (
+                <UserCard
                     key={x.idUsuario}
                     id={x.idUsuario}
                     name={x.nome}
@@ -85,4 +83,4 @@ const Employees = () => {
     );
 }
 
-export default Employees;
+export default Users;
