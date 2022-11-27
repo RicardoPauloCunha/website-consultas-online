@@ -55,7 +55,7 @@ const Login = () => {
     }
 
     const getPacientCpf = async (user: Usuario) => {
-        await getPatientCpfByUserIdHttp(user.idUsuario).then(response => {
+        await getPatientCpfByUserIdHttp(user.id).then(response => {
             handlerLogin(user, response);
         }).catch(() => {
             setWarning(["danger", "Dados do paciente não encontrados."]);
@@ -105,7 +105,7 @@ const Login = () => {
             cpf = "";
 
         let dataToken = handlerSignIn({
-            userId: user.idUsuario,
+            userId: user.id,
             name: user.nome,
             cpf,
             userType: user.tipoUsuario

@@ -20,10 +20,10 @@ export const getValueTipoUsuario = (type: TipoUsuarioEnum) => {
     }
 }
 
-export const listTipoUsuarioToManage = () => {
+export const listTipoUsuario = () => {
     let list: string[] = [];
 
-    for (let i = 1; i <= 3; i++)
+    for (let i = 1; i <= 4; i++)
         list.push(getValueTipoUsuario(i));
 
     return list;

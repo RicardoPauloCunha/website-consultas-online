@@ -4,14 +4,14 @@ import SelectInput from "../../components/Input/select";
 import SpinnerBlock from "../../components/SpinnerBlock";
 import Warning from "../../components/Warning";
 import Usuario from "../../services/entities/usuario";
-import { listTipoUsuarioToManage } from "../../services/enums/tipoUsuario";
+import TipoUsuarioEnum, { listTipoUsuario } from "../../services/enums/tipoUsuario";
 import { listUserByParamsHttp } from "../../services/http/user";
 import { Form } from "../../styles/components";
 import DocumentTitle from "../../util/documentTitle";
 import { WarningTuple } from "../../util/getHttpErrors";
 
 const Users = () => {
-    const _userTypes = listTipoUsuarioToManage();
+    const _userTypes = listTipoUsuario();
 
     const [isLoading, setIsLoading] = useState<"get" | "status" | "">("");
     const [warning, setWarning] = useState<WarningTuple>(["", ""]);
@@ -19,7 +19,7 @@ const Users = () => {
     const [users, setUsers] = useState<Usuario[]>([]);
 
     useEffect(() => {
-        getUsers(0);
+        getUsers(TipoUsuarioEnum.Recepcionista);
     }, []);
 
     const getUsers = (userType: number) => {
@@ -27,12 +27,12 @@ const Users = () => {
 
         setIsLoading("get");
         listUserByParamsHttp({
-            tipoFuncionario: userType
+            tipo: userType
         }).then(response => {
             setUsers([...response]);
 
             if (response.length === 0)
-                setWarning(["warning", "Nenhum funcionário foi encontrado."]);
+                setWarning(["warning", "Nenhum usuário foi encontrado."]);
 
             setIsLoading("");
         });
@@ -40,14 +40,15 @@ const Users = () => {
 
     const handlerChangeUserType = (optionValue: string) => {
         let userType = Number(optionValue);
+
         getUsers(userType);
     }
 
-    DocumentTitle("Funcionários | CM");
+    DocumentTitle("Usuários | CM");
 
     return (
         <>
-            <h1>Lista de funcionários</h1>
+            <h1>Lista de usuários</h1>
 
             <Form
                 ref={null}
@@ -56,8 +57,8 @@ const Users = () => {
             >
                 <SelectInput
                     name='userType'
-                    label='Tipo de funcionário'
-                    placeholder='Filtrar pelo tipo de funcionário'
+                    label='Tipo de usuário'
+                    placeholder='Filtrar pelo tipo de usuário'
                     options={_userTypes.map((x, index) => ({
                         value: `${index + 1}`,
                         label: x
@@ -72,8 +73,8 @@ const Users = () => {
 
             {users.map(x => (
                 <UserCard
-                    key={x.idUsuario}
-                    id={x.idUsuario}
+                    key={x.id}
+                    id={x.id}
                     name={x.nome}
                     email={x.email}
                     userType={x.tipoUsuario}

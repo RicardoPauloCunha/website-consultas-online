@@ -1,5 +1,5 @@
 
-import TipoEspecialidadeEnum, { getValueTipoEspecialidade } from "../../services/enums/tipoEspecialidade";
+import EspecialidadeEnum, { getValueEspecialidade } from "../../services/enums/especialidade";
 import { normalizeDate } from "../../util/formatString";
 import DataText from "../DataText";
 import { DataCardEl } from "./styles";
@@ -7,7 +7,7 @@ import { DataCardEl } from "./styles";
 type AttendanceCardProps = {
     id: number;
     date: string;
-    specialty: TipoEspecialidadeEnum;
+    specialty: EspecialidadeEnum;
     doctorName: string;
     description: string;
 }
@@ -16,13 +16,13 @@ const AttendanceCard = ({ id, date, specialty, doctorName, description }: Attend
     return (
         <DataCardEl className="data-card-attendance">
             <DataText
-                label={getValueTipoEspecialidade(specialty)}
+                label={getValueEspecialidade(specialty)}
                 value={new Date(normalizeDate(date)).toLocaleDateString()}
             />
 
             <DataText
                 label="Serviço"
-                value={getValueTipoEspecialidade(specialty)}
+                value={getValueEspecialidade(specialty)}
             />
 
             <DataText

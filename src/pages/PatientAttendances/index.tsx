@@ -64,7 +64,7 @@ const PatientAttendances = () => {
                     key={x.idAtendimento}
                     id={x.idAtendimento}
                     date={x.dataCriacao}
-                    specialty={x.agendamento.tipoEspecialidade}
+                    specialty={x.agendamento.especialidade}
                     doctorName={x.agendamento.medico.nome}
                     description={x.descricao}
                 />

@@ -8,9 +8,9 @@ import SelectInput from "../../components/Input/select";
 import LoadingButton from "../../components/LoadingButton";
 import Warning from "../../components/Warning";
 import { useAuth } from "../../contexts/auth";
-import { listGeneroPaciente } from "../../services/enums/generoPaciente";
+import { listGenero } from "../../services/enums/genero";
 import TipoUsuarioEnum from "../../services/enums/tipoUsuario";
-import { getPatientByCpfHttp, postPatientHttp, putPatientHttp } from "../../services/http/patient";
+import { getPatientByIdHttp, postPatientHttp, PostPatientRequest, putPatientHttp } from "../../services/http/patient";
 import { Form } from "../../styles/components";
 import DocumentTitle from "../../util/documentTitle";
 import { concatenateAddress, splitAddress } from "../../util/formatAddress";
@@ -19,32 +19,32 @@ import { WarningTuple } from "../../util/getHttpErrors";
 import getValidationErrors from "../../util/getValidationErrors";
 
 type PatientFormData = {
-    cpf: string;
     name: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    cpf: string;
     birthDate: string;
-    gender: number;
-    contact: string;
+    gender: string;
     cep: string;
     street: string;
     number: string;
     district: string;
     city: string;
     state: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
+    contact: string;
 }
 
 const Patient = () => {
     const routeParams = useParams();
-    const patientFormRef = useRef<FormHandles>(null);
+    const formRef = useRef<FormHandles>(null);
     const navigate = useNavigate();
 
     const { loggedUser } = useAuth();
 
-    const _genderTypes = listGeneroPaciente();
+    const _genderTypes = listGenero();
 
-    const [isLoading, setIsLoading] = useState<"patientForm" | "getPatient" | "">("");
+    const [isLoading, setIsLoading] = useState<"form" | "get" | "">("");
     const [warning, setWarning] = useState<WarningTuple>(["", ""]);
     const [isEdition, setIsEdition] = useState(false);
     const [isReceptionist, setIsReceptionist] = useState(false);
@@ -62,29 +62,30 @@ const Patient = () => {
         if (edition)
             getPatient();
         else
-            patientFormRef.current?.reset();
+            formRef.current?.reset();
         // eslint-disable-next-line
     }, [routeParams]);
 
     const getPatient = () => {
-        if (!loggedUser)
+        if (!loggedUser || loggedUser?.userType !== TipoUsuarioEnum.Paciente)
             return;
 
-        setIsLoading("getPatient");
-        getPatientByCpfHttp(loggedUser.cpf).then(response => {
+        setIsLoading("get");
+        getPatientByIdHttp(loggedUser.userId).then(response => {
             let address = splitAddress(response.endereco);
+            let birthDate = new Date(normalizeDate(response.dataNascimento)).toLocaleDateString();
 
             setTimeout(() => {
-                patientFormRef.current?.setData({
-                    cpf: response.cpf,
+                formRef.current?.setData({
                     name: response.nome,
-                    birthDate: new Date(normalizeDate(response.dataNascimento)).toLocaleDateString(),
-                    gender: response.sexo.toString(),
-                    contact: response.contato,
-                    ...address,
                     email: response.email,
                     password: response.senha,
                     confirmPassword: response.senha,
+                    cpf: response.cpf,
+                    birthDate,
+                    gender: response.sexo,
+                    ...address,
+                    contact: response.contato,
                 });
             }, 100);
 
@@ -94,23 +95,30 @@ const Patient = () => {
         });
     }
 
-    const submitPatientForm: SubmitHandler<PatientFormData> = async (data, { reset }) => {
+    const submitPatientForm: SubmitHandler<PatientFormData> = async (data) => {
+        if (!loggedUser || loggedUser?.userType !== TipoUsuarioEnum.Paciente)
+            return;
+
         try {
-            setIsLoading("patientForm");
+            setIsLoading("form");
             setWarning(["", ""]);
-            patientFormRef.current?.setErrors({});
+            formRef.current?.setErrors({});
 
             const shema = Yup.object().shape({
-                cpf: Yup.string().trim()
-                    .required("Coloque o CPF do paciente."),
                 name: Yup.string().trim()
                     .required("Coloque o nome do paciente."),
+                email: Yup.string().trim()
+                    .required("Coloque o email do paciente."),
+                password: Yup.string().trim()
+                    .required("Coloque a senha do paciente."),
+                confirmPassword: Yup.string()
+                    .oneOf([Yup.ref('password'), null], 'As senhas precisam ser iguais.'),
+                cpf: Yup.string().trim()
+                    .required("Coloque o CPF do paciente."),
                 birthDate: Yup.string().trim()
                     .required("Coloque a data de nascimento do paciente."),
                 gender: Yup.string().trim()
                     .required("Selecione o gênero."),
-                contact: Yup.string().trim()
-                    .required("Coloque o contato (telefone) do paciente."),
                 cep: Yup.string().trim()
                     .required("Coloque o CEP do endereço."),
                 street: Yup.string().trim()
@@ -123,31 +131,37 @@ const Patient = () => {
                     .required("Coloque a cidade do endereço."),
                 state: Yup.string().trim()
                     .required("Coloque o estado (UF) do endereço."),
-                email: Yup.string().trim()
-                    .required("Coloque o email do paciente."),
-                password: Yup.string().trim()
-                    .required("Coloque a senha do paciente."),
-                confirmPassword: Yup.string()
-                    .oneOf([Yup.ref('password'), null], 'As senhas precisam ser iguais.'),
+                contact: Yup.string().trim()
+                    .required("Coloque o contato (telefone) do paciente."),
             });
 
             await shema.validate(data, {
                 abortEarly: false
             });
 
-            let patientData = {
-                cpf: normalizeString(data.cpf),
+            let patientData: PostPatientRequest = {
                 nome: data.name,
-                dataNascimento: normalizeDate(data.birthDate),
-                sexo: Number(data.gender),
-                endereco: concatenateAddress({ ...data }),
-                contato: normalizeString(data.contact),
                 email: data.email,
                 senha: data.password,
+                tipoUsuario: TipoUsuarioEnum.Paciente,
+                cpf: normalizeString(data.cpf),
+                dataNascimento: normalizeDate(data.birthDate),
+                sexo: data.gender,
+                endereco: concatenateAddress({ ...data }),
+                contato: normalizeString(data.contact),
             }
 
-            if (!isEdition) {
-                postPatientHttp(patientData).then(response => {
+            if (isEdition) {
+                patientData.tipoUsuario = undefined;
+
+                putPatientHttp(loggedUser.userId, patientData).then(() => {
+                    setWarning(["success", "Paciente editado com sucesso."]);
+                }).catch(() => {
+                    setWarning(["danger", "Não foi possível editar o paciente."]);
+                }).finally(() => { setIsLoading(""); });
+            }
+            else {
+                postPatientHttp(patientData).then(() => {
                     let from = isReceptionist
                         ? "/consultas"
                         : "/consultas-paciente";
@@ -157,17 +171,10 @@ const Patient = () => {
                     setWarning(["danger", "Não foi possível cadastrar o paciente."]);
                 }).finally(() => { setIsLoading(""); });
             }
-            else {
-                putPatientHttp(patientData).then(() => {
-                    setWarning(["success", "Paciente editado com sucesso."]);
-                }).catch(() => {
-                    setWarning(["danger", "Não foi possível editar o paciente."]);
-                }).finally(() => { setIsLoading(""); });
-            }
         }
         catch (err) {
             if (err instanceof Yup.ValidationError)
-                patientFormRef.current?.setErrors(getValidationErrors(err));
+                formRef.current?.setErrors(getValidationErrors(err));
             setWarning(["warning", "Campos do paciente inválidos."]);
             setIsLoading("");
         }
@@ -180,11 +187,17 @@ const Patient = () => {
             <h1>{isEdition ? "Editar" : "Cadastrar"} paciente</h1>
 
             <Form
-                ref={patientFormRef}
+                ref={formRef}
                 onSubmit={submitPatientForm}
                 className="form-modal"
             >
                 <h2>Informações pessoais</h2>
+
+                <FieldInput
+                    name='name'
+                    label='Nome'
+                    placeholder='Coloque o nome'
+                />
 
                 <MaskInput
                     name='cpf'
@@ -192,13 +205,6 @@ const Patient = () => {
                     mask="999.999.999-99"
                     maskChar=""
                     placeholder='000.000.000-00'
-                    disabled={isEdition}
-                />
-
-                <FieldInput
-                    name='name'
-                    label='Nome'
-                    placeholder='Coloque o nome'
                 />
 
                 <MaskInput
@@ -213,8 +219,8 @@ const Patient = () => {
                     name='gender'
                     label='Gênero'
                     placeholder='Selecione o gênero'
-                    options={_genderTypes.map((x, index) => ({
-                        value: `${index + 1}`,
+                    options={_genderTypes.map(x => ({
+                        value: x,
                         label: x
                     }))}
                 />
@@ -296,10 +302,9 @@ const Patient = () => {
 
                 <LoadingButton
                     text={isEdition ? "Editar" : "Cadastrar"}
-                    isLoading={isLoading === "patientForm"}
-                    type='button'
+                    isLoading={isLoading === "form"}
+                    type='submit'
                     color={isEdition ? "warning" : "secondary"}
-                    onClick={() => patientFormRef.current?.submitForm()}
                 />
             </Form>
         </>

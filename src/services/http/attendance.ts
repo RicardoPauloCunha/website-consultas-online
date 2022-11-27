@@ -1,4 +1,5 @@
 import { get, post } from "../api";
+import Agendamento from "../entities/agendamento";
 import Atendimento from "../entities/atendimento";
 
 const ROOT = "atendimentos/";
@@ -10,9 +11,7 @@ export const listAttendanceByCpfHttp = async (cpf: string): Promise<Atendimento[
 
 interface PostAttendanceRequest {
     description: string;
-    agendamento: {
-        idAgendamento: number;
-    }
+    agendamento: Agendamento;
 }
 
 export const postAttendanceHttp = async (requestData: PostAttendanceRequest): Promise<void> => {

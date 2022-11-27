@@ -1,6 +1,6 @@
 import { get, getParams, post, put } from "../api";
 import Medico from "../entities/medico";
-import { PostUserRequest } from "./user";
+import { PostEmployeeRequest } from "./employee";
 
 const ROOT = "medicos/";
 
@@ -10,27 +10,27 @@ export const getDoctorByIdHttp = async (doctorId: number): Promise<Medico> => {
 }
 
 interface ListDoctorByParams {
-    idEspecialidade: number | undefined;
+    especialidade: number | undefined;
 }
 
 export const listDoctorByParamsHttp = async (paramsData: ListDoctorByParams): Promise<Medico[]> => {
-    let { data } = await getParams<ListDoctorByParams, Medico[]>(ROOT + "listar-por-id-especialidade", paramsData);
+    let { data } = await getParams<ListDoctorByParams, Medico[]>(ROOT + "filter", paramsData);
     return data;
 }
 
-interface PostDoctorRequest extends PostUserRequest {
+export interface PostDoctorRequest extends PostEmployeeRequest {
     crm: string;
-    tipoEspecialidade: number;
+    especialidade: number;
 }
 
 export const postDoctorHttp = async (requestData: PostDoctorRequest): Promise<void> => {
-    await post<PostUserRequest, void>(ROOT, requestData);
+    await post<PostDoctorRequest, void>(ROOT, requestData);
 }
 
 interface PutDoctorRequest extends PostDoctorRequest {
-    idUsuario: number;
+
 }
 
-export const putDoctorHttp = async (requestData: PutDoctorRequest): Promise<void> => {
-    await put<PutDoctorRequest, void>(ROOT + "alterar-medico", requestData);
+export const putDoctorHttp = async (userId: number, requestData: PutDoctorRequest): Promise<void> => {
+    await put<PutDoctorRequest, void>(ROOT + userId, requestData);
 }

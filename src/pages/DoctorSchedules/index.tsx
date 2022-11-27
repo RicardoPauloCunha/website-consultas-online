@@ -13,8 +13,8 @@ import StatusBadge from "../../components/StatusBadge";
 import Warning from "../../components/Warning";
 import { useAuth } from "../../contexts/auth";
 import Agendamento from "../../services/entities/agendamento";
+import { getValueEspecialidade } from "../../services/enums/especialidade";
 import StatusAgendamentoEnum, { defineColorStatusAgendamento, getValueStatusAgendamento, listStatusAgendamento } from "../../services/enums/statusAgendamento";
-import { getValueTipoEspecialidade } from "../../services/enums/tipoEspecialidade";
 import { postAttendanceHttp } from "../../services/http/attendance";
 import { listDoctorSchedulingByParamsHttp, putSchedulingHttp } from "../../services/http/scheduling";
 import { DataModal, Form, TextGroupGrid } from "../../styles/components";
@@ -95,7 +95,7 @@ const DoctorSchedules = () => {
     const sendChangeSchedulingStatus = async (index: number) => {
         schedules[index].status = StatusAgendamentoEnum.Concluded;
 
-        await putSchedulingHttp(schedules[index]).catch(() => {
+        await putSchedulingHttp(schedules[index].id, schedules[index]).catch(() => {
             setWarning(["danger", "Não foi possível atualizar o status do agendamento."]);
             setIsLoading("");
         });
@@ -158,11 +158,10 @@ const DoctorSchedules = () => {
     }
 
     const onClickOpenSchedule = (scheduleId: number) => {
-        let index = schedules.findIndex(x => x.idAgendamento === scheduleId);
+        let index = schedules.findIndex(x => x.id === scheduleId);
+
         setScheduleIndex(index);
         toggleModal("schedule");
-
-        // TODO: Busca atendimento do agendamento para consulta já concluidas
     }
 
     const onClickFinalizeAttendance = () => {
@@ -213,13 +212,13 @@ const DoctorSchedules = () => {
 
             {schedules.map(x => (
                 <SchedulingCard
-                    key={x.idAgendamento}
-                    id={x.idAgendamento}
+                    key={x.id}
+                    id={x.id}
                     patientName={x.paciente.nome}
                     time={x.horaAgendada}
                     date={x.dataAgendada}
                     status={x.status}
-                    specialty={x.tipoEspecialidade}
+                    specialty={x.especialidade}
                     onClickOpenSchedule={onClickOpenSchedule}
                 />
             ))}
@@ -264,7 +263,7 @@ const DoctorSchedules = () => {
 
                         <DataText
                             label="Serviço"
-                            value={getValueTipoEspecialidade(schedules[scheduleIndex].tipoEspecialidade)}
+                            value={getValueEspecialidade(schedules[scheduleIndex].especialidade)}
                             isFullRow={true}
                         />
                     </TextGroupGrid>}

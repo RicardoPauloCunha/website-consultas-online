@@ -1,6 +1,6 @@
 import { Button } from "reactstrap";
+import EspecialidadeEnum, { getValueEspecialidade } from "../../services/enums/especialidade";
 import StatusAgendamentoEnum, { defineColorStatusAgendamento, getValueStatusAgendamento } from "../../services/enums/statusAgendamento";
-import TipoEspecialidadeEnum, { getValueTipoEspecialidade } from "../../services/enums/tipoEspecialidade";
 import DataText from "../DataText";
 import StatusBadge from "../StatusBadge";
 import { DataCardEl } from "./styles";
@@ -11,7 +11,7 @@ type SchedulingCardProps = {
     time: string;
     date: string;
     status: StatusAgendamentoEnum;
-    specialty: TipoEspecialidadeEnum;
+    specialty: EspecialidadeEnum;
     doctorName?: string;
     onClickOpenSchedule: (scheduleId: number) => void;
 }
@@ -33,7 +33,7 @@ const SchedulingCard = ({ id, patientName, time, date, status, specialty, doctor
 
             <DataText
                 label="Serviço"
-                value={getValueTipoEspecialidade(specialty)}
+                value={getValueEspecialidade(specialty)}
             />
 
             {doctorName && <DataText

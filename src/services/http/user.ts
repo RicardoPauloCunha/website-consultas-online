@@ -10,11 +10,11 @@ export const getUserByIdHttp = async (userId: number): Promise<Usuario> => {
 }
 
 interface ListUserByParams {
-    tipoFuncionario: TipoUsuarioEnum;
+    tipo: TipoUsuarioEnum;
 }
 
 export const listUserByParamsHttp = async (paramsData: ListUserByParams): Promise<Usuario[]> => {
-    let { data } = await getParams<ListUserByParams, Usuario[]>(ROOT + "tipofuncionario", paramsData);
+    let { data } = await getParams<ListUserByParams, Usuario[]>(ROOT + "filter", paramsData);
     return data;
 }
 
@@ -39,10 +39,10 @@ export const postUserHttp = async (requestData: PostUserRequest): Promise<void> 
     await post<PostUserRequest, void>(ROOT, requestData);
 }
 
-interface PutPostRequest extends PostUserRequest {
+interface PutUserRequest extends PostUserRequest {
     idUsuario: number;
 }
 
-export const putUserHttp = async (requestData: PutPostRequest): Promise<void> => {
-    await put<PutPostRequest, void>(ROOT + "alterar-funcionario", requestData);
+export const putUserHttp = async (requestData: PutUserRequest): Promise<void> => {
+    await put<PutUserRequest, void>(ROOT + "alterar-funcionario", requestData);
 }

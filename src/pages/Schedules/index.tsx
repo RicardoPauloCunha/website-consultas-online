@@ -11,10 +11,10 @@ import StatusBadge from "../../components/StatusBadge";
 import Warning from "../../components/Warning";
 import { useAuth } from "../../contexts/auth";
 import Agendamento from "../../services/entities/agendamento";
+import { getValueEspecialidade } from "../../services/enums/especialidade";
 import StatusAgendamentoEnum, { defineColorStatusAgendamento, getValueStatusAgendamento, listStatusAgendamento } from "../../services/enums/statusAgendamento";
-import { getValueTipoEspecialidade } from "../../services/enums/tipoEspecialidade";
 import TipoUsuarioEnum from "../../services/enums/tipoUsuario";
-import { listReceptionistSchedulingByParamsHttp, putSchedulingHttp } from "../../services/http/scheduling";
+import { listSchedulingByParamsHttp, putSchedulingHttp } from "../../services/http/scheduling";
 import { DataModal, Form, TextGroupGrid } from "../../styles/components";
 import DocumentTitle from "../../util/documentTitle";
 import { formatCellphone, formatCpf, normalizeDate, normalizeString } from "../../util/formatString";
@@ -23,7 +23,7 @@ import { WarningTuple } from "../../util/getHttpErrors";
 type ModalString = "update" | "schedule" | "";
 
 const Schedules = () => {
-    const filterFormRef = useRef<FormHandles>(null);
+    const formRef = useRef<FormHandles>(null);
 
     const { loggedUser } = useAuth();
 
@@ -44,7 +44,7 @@ const Schedules = () => {
         if (receptionist)
             getSchedules(undefined, undefined);
         else if (loggedUser)
-            getSchedules(undefined, loggedUser.cpf);
+            getSchedules(undefined, loggedUser.cpf); // TODO: Resolver esse filtro (CPF)
         else
             setIsLoading("get");
         // eslint-disable-next-line
@@ -56,7 +56,7 @@ const Schedules = () => {
         scheduleStatus = scheduleStatus === 0 ? undefined : scheduleStatus;
 
         setIsLoading("get");
-        listReceptionistSchedulingByParamsHttp({
+        listSchedulingByParamsHttp({
             cpf: cpf,
             status: scheduleStatus
         }).then(response => {
@@ -84,7 +84,7 @@ const Schedules = () => {
 
         schedules[scheduleIndex].status = statusAgendamento;
 
-        putSchedulingHttp(schedules[scheduleIndex]).then(() => {
+        putSchedulingHttp(schedules[scheduleIndex].id, schedules[scheduleIndex]).then(() => {
             setWarning(["success", "Status do agendamento editado com sucesso."]);
             toggleModal();
         }).catch(() => {
@@ -97,13 +97,13 @@ const Schedules = () => {
         let cpf: string | undefined = undefined;
 
         if (isReceptionist) {
-            cpf = normalizeString(filterFormRef.current?.getFieldValue("patientCpf"));
+            cpf = normalizeString(formRef.current?.getFieldValue("patientCpf"));
 
-            if (cpf.length !== 11)
+            if (cpf?.length !== 11)
                 cpf = undefined;
         }
         else if (loggedUser) {
-            cpf = loggedUser.cpf;
+            cpf = loggedUser.cpf; // TODO: Resolver esse filtro (CPF)
         }
         else {
             setIsLoading("get");
@@ -114,22 +114,23 @@ const Schedules = () => {
 
     const handlerSearchScheduleByCpf = () => {
         setWarning(["", ""]);
+        formRef.current?.setFieldError("patientCpf", "");
 
-        filterFormRef.current?.setFieldError("patientCpf", "");
-        let cpf = normalizeString(filterFormRef.current?.getFieldValue("patientCpf"));
+        let cpf = normalizeString(formRef.current?.getFieldValue("patientCpf"));
 
-        if (cpf.length !== 11) {
-            filterFormRef.current?.setFieldError("patientCpf", "O CPF do paciente está incompleto.");
+        if (cpf?.length !== 11) {
+            formRef.current?.setFieldError("patientCpf", "O CPF do paciente está incompleto.");
             return;
         }
 
-        let scheduleStatus: number | null = Number(filterFormRef.current?.getFieldValue("scheduleStatus"));
+        let scheduleStatus: number | null = Number(formRef.current?.getFieldValue("scheduleStatus"));
 
         getSchedules(scheduleStatus, cpf);
     }
 
     const onClickOpenSchedule = (scheduleId: number) => {
-        let index = schedules.findIndex(x => x.idAgendamento === scheduleId);
+        let index = schedules.findIndex(x => x.id === scheduleId);
+
         setScheduleIndex(index);
         toggleModal("schedule");
     }
@@ -145,7 +146,7 @@ const Schedules = () => {
             <h1>Lista de agendamentos</h1>
 
             <Form
-                ref={filterFormRef}
+                ref={formRef}
                 onSubmit={() => { }}
                 className="form-search"
             >
@@ -190,13 +191,13 @@ const Schedules = () => {
 
             {schedules.map(x => (
                 <SchedulingCard
-                    key={x.idAgendamento}
-                    id={x.idAgendamento}
+                    key={x.id}
+                    id={x.id}
                     patientName={x.paciente.nome}
                     time={x.horaAgendada}
                     date={x.dataAgendada}
                     status={x.status}
-                    specialty={x.tipoEspecialidade}
+                    specialty={x.especialidade}
                     doctorName={x.medico.nome}
                     onClickOpenSchedule={onClickOpenSchedule}
                 />
@@ -252,7 +253,7 @@ const Schedules = () => {
 
                         <DataText
                             label="Especialidade"
-                            value={getValueTipoEspecialidade(schedules[scheduleIndex].tipoEspecialidade)}
+                            value={getValueEspecialidade(schedules[scheduleIndex].especialidade)}
                             isFullRow={true}
                         />
 

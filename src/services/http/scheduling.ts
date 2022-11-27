@@ -1,6 +1,5 @@
 import { getParams, post, put } from "../api";
 import Agendamento from "../entities/agendamento";
-import StatusAgendamentoEnum from "../enums/statusAgendamento";
 
 const ROOT = "agendamentos/";
 
@@ -9,8 +8,8 @@ interface ListReceptionistSchedulingByParams {
     status: number | undefined;
 }
 
-export const listReceptionistSchedulingByParamsHttp = async (paramsData: ListReceptionistSchedulingByParams): Promise<Agendamento[]> => {
-    let { data } = await getParams<ListReceptionistSchedulingByParams, Agendamento[]>(ROOT + "listar-por-cpf-e-status", paramsData);
+export const listSchedulingByParamsHttp = async (paramsData: ListReceptionistSchedulingByParams): Promise<Agendamento[]> => {
+    let { data } = await getParams<ListReceptionistSchedulingByParams, Agendamento[]>(ROOT + "filter", paramsData);
     return data;
 }
 
@@ -26,37 +25,22 @@ export const listDoctorSchedulingByParamsHttp = async (paramsData: ListDoctorSch
 }
 
 interface PostSchedulingRequest {
-    userId: number;
-    pacienteCpf: string;
-    medicoId: number;
+    idPaciente: number;
+    idMedico: number;
+    especialidade: number;
+    dataCriacao: string;
     dataAgendada: string;
     horaAgendada: string;
-    tipoEspecialidade: number;
-    status: number;
 }
 
 export const postSchedulingHttp = async (requestData: PostSchedulingRequest): Promise<void> => {
     await post<PostSchedulingRequest, void>(ROOT, requestData);
 }
 
-interface PutScheduling {
-    idAgendamento: number;
-    usuario: {
-        idUsuario: number;
-    }
-    paciente: {
-        cpf: string;
-    }
-    medico: {
-        idUsuario: number;
-    }
-    dataCriacao: string;
-    dataAgendada: string;
-    horaAgendada: string;
-    tipoEspecialidade: number;
-    status: StatusAgendamentoEnum;
+interface PutScheduling extends Agendamento {
+
 }
 
-export const putSchedulingHttp = async (requestData: PutScheduling): Promise<void> => {
+export const putSchedulingHttp = async (schedulingId: number, requestData: PutScheduling): Promise<void> => {
     await put<PutScheduling, void>(ROOT, requestData);
 }
