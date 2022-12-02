@@ -65,4 +65,17 @@ export const CollapseCardEl = styled(AccordionItem)`
             }
         }
     }
+
+    @media(max-width: 768px) {
+        margin-top: 2rem;
+        
+        .accordion-body {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .collapse-card-color-gray {
+            margin-top: 0;
+        }
+    }
 `;

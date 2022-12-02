@@ -64,23 +64,7 @@ const Patient = () => {
         if (edition)
             getPatient();
         else
-            // formRef.current?.reset(); // TODO: Descomentar
-            formRef.current?.setData({
-                name: "Usuario 1",
-                email: "user1@gmail.com",
-                password: "123456",
-                confirmPassword: "123456",
-                cpf: "33695177608",
-                birthDate: "01012000",
-                gender: GeneroEnum.Masculino,
-                cep: "69058-289",
-                street: "Rua AAA-A",
-                number: "Nº 1",
-                district: "Bairro AAA",
-                city: "Cidade AA",
-                state: "Estado A",
-                contact: "92997258982"
-            });
+            formRef.current?.reset();
         // eslint-disable-next-line
     }, [routeParams]);
 
@@ -181,7 +165,7 @@ const Patient = () => {
                     let from = "";
 
                     if (isReceptionist) {
-                        from = "/consultas";
+                        from = "/agendamentos/cadastrar";
                     }
                     else {
                         from = "/meus-agendamentos/listar";

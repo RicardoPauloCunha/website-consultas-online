@@ -1,9 +1,8 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import Layout from './components/Layout';
-import DoctorMenu from './components/Menu/doctor';
 import DoctorSchedulesMenu from './components/Menu/doctorSchedules';
-import EmployeeMenu from './components/Menu/employee';
 import PatientSchedulesMenu from './components/Menu/patientSchedules';
+import RegisterUserMenu from './components/Menu/registerUser';
 import SchedulingMenu from './components/Menu/scheduling';
 import UserMenu from './components/Menu/user';
 import ScrollToTop from './components/ScrollToTop';
@@ -68,7 +67,7 @@ const PagesRoutes = () => {
                     </Route>
 
                     <Route path="funcionarios"
-                        element={<EmployeeMenu />}
+                        element={<RegisterUserMenu />}
                     >
                         <Route path="cadastrar"
                             element={<RequireAuth
@@ -85,7 +84,7 @@ const PagesRoutes = () => {
                     </Route>
 
                     <Route path="medicos"
-                        element={<DoctorMenu />}
+                        element={<RegisterUserMenu />}
                     >
                         <Route path="cadastrar"
                             element={<RequireAuth

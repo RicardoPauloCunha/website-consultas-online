@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { FormHandles } from "@unform/core";
+import { useEffect, useRef, useState } from "react";
 import UserCard from "../../components/DataCard/user";
 import SelectInput from "../../components/Input/select";
 import SpinnerBlock from "../../components/SpinnerBlock";
@@ -11,6 +12,7 @@ import DocumentTitle from "../../util/documentTitle";
 import { WarningTuple } from "../../util/getHttpErrors";
 
 const Users = () => {
+    const formRef = useRef<FormHandles>(null);
     const _userTypes = listTipoUsuario();
 
     const [isLoading, setIsLoading] = useState<"get" | "status" | "">("");
@@ -19,7 +21,10 @@ const Users = () => {
     const [users, setUsers] = useState<Usuario[]>([]);
 
     useEffect(() => {
-        getUsers(TipoUsuarioEnum.Paciente);
+        let userType = TipoUsuarioEnum.Paciente;
+        formRef.current?.setFieldValue("userType", userType);
+
+        getUsers(userType);
     }, []);
 
     const getUsers = (userType: TipoUsuarioEnum) => {
@@ -51,7 +56,7 @@ const Users = () => {
             <h1>Lista de usuários</h1>
 
             <Form
-                ref={null}
+                ref={formRef}
                 onSubmit={() => { }}
                 className="form-search"
             >

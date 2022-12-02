@@ -47,11 +47,6 @@ const Login = () => {
             else
                 getUser(user.userId);
         }
-
-        formRef.current?.setData({ // TODO: Remover
-            email: "user1@gmail.com",
-            password: "123456"
-        });
         // eslint-disable-next-line
     }, []);
 

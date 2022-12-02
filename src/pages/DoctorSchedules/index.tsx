@@ -272,7 +272,7 @@ const DoctorSchedules = () => {
                         color="secondary"
                         onClick={() => onClickFinalizeAttendance()}
                     >
-                        Atendimento
+                        Finalizar atendimento
                     </Button>}
 
                     {(schedules[scheduleIndex]?.status === StatusAgendamentoEnum.Andamento
@@ -305,7 +305,7 @@ const DoctorSchedules = () => {
                     >
                         <FieldInput
                             name='description'
-                            label='Observações'
+                            label='Descrição do atendimento'
                             placeholder='Coloque a descrição do atendimento'
                             type="textarea"
                             rows="4"

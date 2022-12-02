@@ -39,14 +39,7 @@ const RegisterEmployee = () => {
         if (edition)
             getEmployee();
         else
-            // formRef.current?.reset(); // TODO: Remover
-            formRef.current?.setData({
-                name: "Funcionário 1",
-                email: "funcionario1@gmail.com",
-                password: "123456",
-                confirmPassword: "123456",
-                sector: "Recepção"
-            });
+            formRef.current?.reset();
         // eslint-disable-next-line
     }, [routeParams]);
 

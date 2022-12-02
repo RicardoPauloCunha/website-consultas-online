@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaUser } from 'react-icons/fa';
-import { NavLink as Link, useNavigate } from 'react-router-dom';
+import { NavLink as Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { useAuth } from '../../contexts/auth';
 import { getLoggedUser, handlerLogout } from '../../localStorages/auth';
@@ -8,15 +8,49 @@ import TipoUsuarioEnum from '../../services/enums/tipoUsuario';
 import { NavbarProfile } from './styles';
 
 const Menu = () => {
+    const location = useLocation();
     const navigate = useNavigate();
     const { loggedUser, defineLoggedUser } = useAuth();
 
     const [isOpen, setIsOpen] = useState(false);
+    const [menuItems, setMenuItems] = useState<[string, string][]>([]);
 
     useEffect(() => {
         defineLoggedUser(getLoggedUser());
         // eslint-disable-next-line
     }, []);
+
+    useEffect(() => {
+        let items: [string, string][] = [];
+
+        if (loggedUser === undefined) {
+            items.push(["/pacientes/cadastrar", "Criar conta"]);
+        } else {
+            switch (loggedUser.userType) {
+                case TipoUsuarioEnum.Gerente:
+                    items.push(["/usuarios/listar", "Usuários"]);
+                    items.push(["/funcionarios/cadastrar", "Cadastrar usuário"]);
+                    break;
+                case TipoUsuarioEnum.Recepcionista:
+                    items.push(["/agendamentos/listar", "Agendamentos"]);
+                    items.push(["/pacientes/cadastrar", "Cadastrar paciente"]);
+                    break;
+                case TipoUsuarioEnum.Medico:
+                    items.push(["/consultas/listar", "Agendamentos"]);
+                    break;
+                case TipoUsuarioEnum.Paciente:
+                    items.push(["/agendamentos/listar", "Agendamentos"]);
+                    items.push(["/pacientes/editar", "Editar perfil"]);
+                    break;
+            }
+        }
+
+        setMenuItems([...items]);
+    }, [loggedUser]);
+
+    useEffect(() => {
+        setIsOpen(false);
+    }, [location.pathname])
 
     const toggleIsOpen = () => {
         setIsOpen(!isOpen);
@@ -36,26 +70,16 @@ const Menu = () => {
                 expand="md"
                 fixed="top"
             >
-                {loggedUser
-                    ? <>
-                        <NavbarBrand
-                            to="/home"
-                            tag={Link}
-                        >
-                            Clínica Médica
-                        </NavbarBrand>
+                <NavbarBrand
+                    to="/"
+                    tag={Link}
+                >
+                    Clínica Médica
+                </NavbarBrand>
 
-                        <NavbarToggler
-                            onClick={() => toggleIsOpen()}
-                        />
-                    </>
-                    : <NavbarBrand
-                        to="/login"
-                        tag={Link}
-                    >
-                        Clínica Médica
-                    </NavbarBrand>
-                }
+                <NavbarToggler
+                    onClick={() => toggleIsOpen()}
+                />
 
                 <Collapse
                     navbar
@@ -65,79 +89,16 @@ const Menu = () => {
                         className="me-auto"
                         navbar
                     >
-                        {loggedUser === undefined && <>
-                            <NavItem>
+                        {menuItems.map((x, index) => (
+                            <NavItem key={index}>
                                 <NavLink
-                                    to="/pacientes/cadastrar"
+                                    to={x[0]}
                                     tag={Link}
                                 >
-                                    Criar conta
+                                    {x[1]}
                                 </NavLink>
                             </NavItem>
-                        </>}
-
-                        {loggedUser?.userType === TipoUsuarioEnum.Gerente && <>
-                            <NavItem>
-                                <NavLink
-                                    to="/usuarios/listar"
-                                    tag={Link}
-                                >
-                                    Usuários
-                                </NavLink>
-                            </NavItem>
-
-                            <NavItem>
-                                <NavLink
-                                    to="/funcionarios/cadastrar"
-                                    tag={Link}
-                                >
-                                    Funcionários
-                                </NavLink>
-                            </NavItem>
-
-                            <NavItem>
-                                <NavLink
-                                    to="/medicos/cadastrar"
-                                    tag={Link}
-                                >
-                                    Médicos
-                                </NavLink>
-                            </NavItem>
-                        </>}
-
-                        {(loggedUser?.userType === TipoUsuarioEnum.Recepcionista
-                            || loggedUser?.userType === TipoUsuarioEnum.Paciente) && <>
-                                <NavItem>
-                                    <NavLink
-                                        to="/agendamentos/listar"
-                                        tag={Link}
-                                    >
-                                        Agendamentos
-                                    </NavLink>
-                                </NavItem>
-                            </>}
-
-                        {loggedUser?.userType === TipoUsuarioEnum.Paciente && <>
-                            <NavItem>
-                                <NavLink
-                                    to="/pacientes/editar"
-                                    tag={Link}
-                                >
-                                    Editar perfil
-                                </NavLink>
-                            </NavItem>
-                        </>}
-
-                        {loggedUser?.userType === TipoUsuarioEnum.Medico && <>
-                            <NavItem>
-                                <NavLink
-                                    to="/consultas/listar"
-                                    tag={Link}
-                                >
-                                    Agendamentos
-                                </NavLink>
-                            </NavItem>
-                        </>}
+                        ))}
                     </Nav>
 
                     <NavbarProfile>

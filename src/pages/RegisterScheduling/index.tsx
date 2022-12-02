@@ -74,9 +74,8 @@ const RegisterScheduling = () => {
             cpf
         }).then(response => {
             setPatient(response);
-            setWarning(["success", "Paciente encontrado."]);
         }).catch(() => {
-            setWarning(["danger", "Paciente não encontrado. Adicione o paciente para prosseguir o agendamento."]);
+            setWarning(["danger", "Paciente não encontrado. Cadastre o paciente para prosseguir o agendamento."]);
         }).finally(() => setIsLoading(""));
     }
 

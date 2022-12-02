@@ -114,4 +114,10 @@ export const DataCardEl = styled.div`
             grid-area: butt;
         }
     }
+
+    @media(max-width: 768px) {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+    }
 `;

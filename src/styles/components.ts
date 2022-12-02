@@ -67,6 +67,12 @@ export const Form = styled(Unform)`
             }
         }
     }
+
+    @media(max-width: 768px) {
+        &.form-data {
+            padding: 1.5rem 1rem 0 1rem;
+        }
+    }
 `;
 
 export const TextGroupGrid = styled.div`

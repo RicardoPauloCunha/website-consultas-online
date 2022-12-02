@@ -45,16 +45,7 @@ const RegisterDoctor = () => {
         if (edition)
             getDoctor();
         else
-            // formRef.current?.reset(); // TODO: Remover
-            formRef.current?.setData({
-                name: "Médico",
-                crm: "123456",
-                specialty: EspecialidadeEnum.Cardiologista,
-                email: "medico1@gmail.com",
-                password: "123456",
-                confirmPassword: "123456",
-                sector: "Atendimentos"
-            });
+            formRef.current?.reset();
         // eslint-disable-next-line
     }, [routeParams]);
 

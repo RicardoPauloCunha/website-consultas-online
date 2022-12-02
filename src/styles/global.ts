@@ -109,4 +109,12 @@ export default createGlobalStyle`
             min-height: 3rem;
         }
     }
+
+    @media(max-width: 768px) {
+        .row {
+            >div:first-of-type>div {
+                margin-bottom: 0 !important;
+            }
+        }
+    }
 `;

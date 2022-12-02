@@ -217,21 +217,23 @@ const Schedules = () => {
                     {schedules[scheduleIndex] && <TextGroupGrid
                         className="text-group-grid-modal"
                     >
-                        <DataText
-                            label="Paciente"
-                            value={schedules[scheduleIndex].pacienteNome}
-                            isFullRow={true}
-                        />
+                        {isReceptionist && <>
+                            <DataText
+                                label="Paciente"
+                                value={schedules[scheduleIndex].pacienteNome}
+                                isFullRow={true}
+                            />
 
-                        <DataText
-                            label="CPF"
-                            value={formatCpf(schedules[scheduleIndex].pacienteCpf)}
-                        />
+                            <DataText
+                                label="CPF"
+                                value={formatCpf(schedules[scheduleIndex].pacienteCpf)}
+                            />
 
-                        <DataText
-                            label="Contato"
-                            value={formatCellphone(schedules[scheduleIndex].pacienteContato)}
-                        />
+                            <DataText
+                                label="Contato"
+                                value={formatCellphone(schedules[scheduleIndex].pacienteContato)}
+                            />
+                        </>}
 
                         <DataText
                             label="Data"
@@ -265,7 +267,7 @@ const Schedules = () => {
 
                 <ModalFooter>
                     {schedules[scheduleIndex]?.status === StatusAgendamentoEnum.Agendado && <>
-                        {loggedUser?.userType === TipoUsuarioEnum.Recepcionista && <LoadingButton
+                        {isReceptionist && <LoadingButton
                             text="Confirmar comparecimento"
                             isLoading={isLoading === "update"}
                             color="secondary"
@@ -296,7 +298,7 @@ const Schedules = () => {
 
                 {schedules[scheduleIndex] && <ModalBody>
                     <p>
-                        Tem certeza que deseja desmarcar o agendamento do paciente <b>{schedules[scheduleIndex].pacienteNome}</b> para o dia <b>{new Date(schedules[scheduleIndex].dataAgendada + "T" + schedules[scheduleIndex].horaAgendada).toLocaleString()}</b>?
+                        Tem certeza que deseja desmarcar o agendamento {isReceptionist && <>do paciente <b>{schedules[scheduleIndex].pacienteNome}</b></>} para o dia <b>{new Date(schedules[scheduleIndex].dataAgendada + "T" + schedules[scheduleIndex].horaAgendada).toLocaleString()}</b>?
                     </p>
 
                     <Warning value={warning} />

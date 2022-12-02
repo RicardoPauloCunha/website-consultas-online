@@ -8,7 +8,7 @@ enum TipoUsuarioEnum {
 export const getValueTipoUsuario = (type: TipoUsuarioEnum) => {
     switch (type) {
         case TipoUsuarioEnum.Gerente:
-            return "Administrador";
+            return "Gerente";
         case TipoUsuarioEnum.Recepcionista:
             return "Recepcionista";
         case TipoUsuarioEnum.Medico:
@@ -22,7 +22,6 @@ export const getValueTipoUsuario = (type: TipoUsuarioEnum) => {
 
 export const listTipoUsuario = () => {
     let list: TipoUsuarioEnum[] = [
-        TipoUsuarioEnum.Gerente,
         TipoUsuarioEnum.Recepcionista,
         TipoUsuarioEnum.Medico,
         TipoUsuarioEnum.Paciente
