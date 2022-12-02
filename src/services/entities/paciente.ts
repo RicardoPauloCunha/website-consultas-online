@@ -1,9 +1,10 @@
+import GeneroEnum from "../enums/genero";
 import Usuario from "./usuario";
 
 interface Paciente extends Usuario {
     cpf: string;
     dataNascimento: string;
-    sexo: string;
+    sexo: GeneroEnum;
     endereco: string;
     contato: string;
 }

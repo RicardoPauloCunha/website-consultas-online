@@ -14,7 +14,7 @@ import Agendamento from "../../services/entities/agendamento";
 import { getValueEspecialidade } from "../../services/enums/especialidade";
 import StatusAgendamentoEnum, { defineColorStatusAgendamento, getValueStatusAgendamento, listStatusAgendamento } from "../../services/enums/statusAgendamento";
 import TipoUsuarioEnum from "../../services/enums/tipoUsuario";
-import { listSchedulingByParamsHttp, putSchedulingHttp } from "../../services/http/scheduling";
+import { listSchedulingByParamsHttp, patchSchedulingHttp } from "../../services/http/scheduling";
 import { DataModal, Form, TextGroupGrid } from "../../styles/components";
 import DocumentTitle from "../../util/documentTitle";
 import { formatCellphone, formatCpf, normalizeDate, normalizeString } from "../../util/formatString";
@@ -44,16 +44,14 @@ const Schedules = () => {
         if (receptionist)
             getSchedules(undefined, undefined);
         else if (loggedUser)
-            getSchedules(undefined, loggedUser.cpf); // TODO: Resolver esse filtro (CPF)
+            getSchedules(undefined, loggedUser.cpf);
         else
             setIsLoading("get");
         // eslint-disable-next-line
     }, []);
 
-    const getSchedules = (scheduleStatus: number | undefined, cpf: string | undefined) => {
+    const getSchedules = (scheduleStatus: StatusAgendamentoEnum | undefined, cpf: string | undefined) => {
         setWarning(["", ""]);
-
-        scheduleStatus = scheduleStatus === 0 ? undefined : scheduleStatus;
 
         setIsLoading("get");
         listSchedulingByParamsHttp({
@@ -84,7 +82,7 @@ const Schedules = () => {
 
         schedules[scheduleIndex].status = statusAgendamento;
 
-        putSchedulingHttp(schedules[scheduleIndex].id, schedules[scheduleIndex]).then(() => {
+        patchSchedulingHttp(schedules[scheduleIndex].id, schedules[scheduleIndex]).then(() => {
             setWarning(["success", "Status do agendamento editado com sucesso."]);
             toggleModal();
         }).catch(() => {
@@ -93,7 +91,7 @@ const Schedules = () => {
     }
 
     const handlerChangeScheduleStatus = (optionValue: string) => {
-        let scheduleStatus = Number(optionValue);
+        let scheduleStatus = optionValue as StatusAgendamentoEnum;
         let cpf: string | undefined = undefined;
 
         if (isReceptionist) {
@@ -103,7 +101,7 @@ const Schedules = () => {
                 cpf = undefined;
         }
         else if (loggedUser) {
-            cpf = loggedUser.cpf; // TODO: Resolver esse filtro (CPF)
+            cpf = loggedUser.cpf;
         }
         else {
             setIsLoading("get");
@@ -123,7 +121,8 @@ const Schedules = () => {
             return;
         }
 
-        let scheduleStatus: number | null = Number(formRef.current?.getFieldValue("scheduleStatus"));
+        let status = formRef.current?.getFieldValue("scheduleStatus");
+        let scheduleStatus = status ? status as StatusAgendamentoEnum : undefined;
 
         getSchedules(scheduleStatus, cpf);
     }
@@ -154,9 +153,9 @@ const Schedules = () => {
                     name='scheduleStatus'
                     label='Status do agendamento'
                     placeholder='Filtrar pelo status do agendamento'
-                    options={_scheduleStatus.map((x, index) => ({
-                        value: `${index + 1}`,
-                        label: x
+                    options={_scheduleStatus.map(x => ({
+                        value: x,
+                        label: getValueStatusAgendamento(x)
                     }))}
                     handlerChange={handlerChangeScheduleStatus}
                 />
@@ -193,12 +192,12 @@ const Schedules = () => {
                 <SchedulingCard
                     key={x.id}
                     id={x.id}
-                    patientName={x.paciente.nome}
+                    patientName={x.pacienteNome}
                     time={x.horaAgendada}
                     date={x.dataAgendada}
                     status={x.status}
                     specialty={x.especialidade}
-                    doctorName={x.medico.nome}
+                    doctorName={x.medicoNome}
                     onClickOpenSchedule={onClickOpenSchedule}
                 />
             ))}
@@ -220,18 +219,18 @@ const Schedules = () => {
                     >
                         <DataText
                             label="Paciente"
-                            value={schedules[scheduleIndex].paciente.nome}
+                            value={schedules[scheduleIndex].pacienteNome}
                             isFullRow={true}
                         />
 
                         <DataText
                             label="CPF"
-                            value={formatCpf(schedules[scheduleIndex].paciente.cpf)}
+                            value={formatCpf(schedules[scheduleIndex].pacienteCpf)}
                         />
 
                         <DataText
                             label="Contato"
-                            value={formatCellphone(schedules[scheduleIndex].paciente.contato)}
+                            value={formatCellphone(schedules[scheduleIndex].pacienteContato)}
                         />
 
                         <DataText
@@ -245,7 +244,7 @@ const Schedules = () => {
                         />
 
                         <StatusBadge
-                            label="update"
+                            label="Status"
                             status={schedules[scheduleIndex].status}
                             value={getValueStatusAgendamento(schedules[scheduleIndex].status)}
                             defineColor={defineColorStatusAgendamento}
@@ -259,19 +258,19 @@ const Schedules = () => {
 
                         <DataText
                             label="Médico"
-                            value={schedules[scheduleIndex].medico.nome}
+                            value={schedules[scheduleIndex].medicoNome}
                         />
                     </TextGroupGrid>}
                 </ModalBody>
 
                 <ModalFooter>
-                    {schedules[scheduleIndex]?.status === StatusAgendamentoEnum.Scheduled && <>
-                        <LoadingButton
+                    {schedules[scheduleIndex]?.status === StatusAgendamentoEnum.Agendado && <>
+                        {loggedUser?.userType === TipoUsuarioEnum.Recepcionista && <LoadingButton
                             text="Confirmar comparecimento"
                             isLoading={isLoading === "update"}
                             color="secondary"
-                            onClick={() => sendChangeStatus(StatusAgendamentoEnum.Progress)}
-                        />
+                            onClick={() => sendChangeStatus(StatusAgendamentoEnum.Andamento)}
+                        />}
 
                         <Button
                             color="danger"
@@ -297,7 +296,7 @@ const Schedules = () => {
 
                 {schedules[scheduleIndex] && <ModalBody>
                     <p>
-                        Tem certeza que deseja desmarcar o agendamento do paciente <b>{schedules[scheduleIndex].paciente.nome}</b> para o dia <b>{new Date(schedules[scheduleIndex].dataAgendada + "T" + schedules[scheduleIndex].horaAgendada).toLocaleString()}</b>?
+                        Tem certeza que deseja desmarcar o agendamento do paciente <b>{schedules[scheduleIndex].pacienteNome}</b> para o dia <b>{new Date(schedules[scheduleIndex].dataAgendada + "T" + schedules[scheduleIndex].horaAgendada).toLocaleString()}</b>?
                     </p>
 
                     <Warning value={warning} />
@@ -308,7 +307,7 @@ const Schedules = () => {
                         text="Desmarcar"
                         isLoading={isLoading === "update"}
                         color="danger"
-                        onClick={() => sendChangeStatus(StatusAgendamentoEnum.Unchecked)}
+                        onClick={() => sendChangeStatus(StatusAgendamentoEnum.Desmarcado)}
                     />
                 </ModalFooter>
             </DataModal>

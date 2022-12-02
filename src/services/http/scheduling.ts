@@ -1,33 +1,14 @@
-import { getParams, post, put } from "../api";
+import { get, getParams, patch, post } from "../api";
 import Agendamento from "../entities/agendamento";
+import EspecialidadeEnum from "../enums/especialidade";
+import StatusAgendamentoEnum from "../enums/statusAgendamento";
 
 const ROOT = "agendamentos/";
-
-interface ListReceptionistSchedulingByParams {
-    cpf: string | undefined;
-    status: number | undefined;
-}
-
-export const listSchedulingByParamsHttp = async (paramsData: ListReceptionistSchedulingByParams): Promise<Agendamento[]> => {
-    let { data } = await getParams<ListReceptionistSchedulingByParams, Agendamento[]>(ROOT + "filter", paramsData);
-    return data;
-}
-
-interface ListDoctorSchedulingByParams {
-    idMedico: number;
-    periodo: number | undefined;
-    status: number | undefined;
-}
-
-export const listDoctorSchedulingByParamsHttp = async (paramsData: ListDoctorSchedulingByParams): Promise<Agendamento[]> => {
-    let { data } = await getParams<ListDoctorSchedulingByParams, Agendamento[]>(ROOT + "listar-por-medico-id-e-periodo", paramsData);
-    return data;
-}
 
 interface PostSchedulingRequest {
     idPaciente: number;
     idMedico: number;
-    especialidade: number;
+    especialidade: EspecialidadeEnum;
     dataCriacao: string;
     dataAgendada: string;
     horaAgendada: string;
@@ -37,10 +18,36 @@ export const postSchedulingHttp = async (requestData: PostSchedulingRequest): Pr
     await post<PostSchedulingRequest, void>(ROOT, requestData);
 }
 
-interface PutScheduling extends Agendamento {
-
+interface ListReceptionistSchedulingByParams {
+    cpf: string | undefined;
+    status: StatusAgendamentoEnum | undefined;
 }
 
-export const putSchedulingHttp = async (schedulingId: number, requestData: PutScheduling): Promise<void> => {
-    await put<PutScheduling, void>(ROOT, requestData);
+export const listSchedulingByParamsHttp = async (paramsData: ListReceptionistSchedulingByParams): Promise<Agendamento[]> => {
+    let { data } = await getParams<ListReceptionistSchedulingByParams, Agendamento[]>(ROOT, paramsData);
+    return data;
+}
+
+interface ListDoctorSchedulingByParams {
+    idMedico: number;
+    dias: number | undefined;
+    status: StatusAgendamentoEnum | undefined;
+}
+
+export const listDoctorSchedulingByParamsHttp = async (paramsData: ListDoctorSchedulingByParams): Promise<Agendamento[]> => {
+    let { data } = await getParams<ListDoctorSchedulingByParams, Agendamento[]>(ROOT + "filter", paramsData);
+    return data;
+}
+
+export const listSchedulingBySpecialtyHttp = async (specialty: EspecialidadeEnum): Promise<Agendamento[]> => {
+    let { data } = await get<Agendamento[]>(ROOT + "filter/" + specialty);
+    return data;
+}
+
+interface PatchScheduling {
+    status: StatusAgendamentoEnum;
+}
+
+export const patchSchedulingHttp = async (schedulingId: number, requestData: PatchScheduling): Promise<void> => {
+    await patch<PatchScheduling, void>(ROOT + schedulingId, requestData);
 }

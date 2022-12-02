@@ -1,9 +1,9 @@
 enum EspecialidadeEnum {
-    ClinicoGeral = 1,
-    Cardiologista = 2,
-    Ginecologista = 3,
-    Urologista = 4,
-    Nutricionista = 5,
+    ClinicoGeral = "CLINICO_GERAL",
+    Cardiologista = "CARDIOLOGISTA",
+    Ginecologista = "GINECOLOGISTA",
+    Urologista = "UROLOGISTA",
+    Nutricionista = "NUTRICIONISTA",
 }
 
 export const getValueEspecialidade = (type: EspecialidadeEnum) => {
@@ -24,10 +24,13 @@ export const getValueEspecialidade = (type: EspecialidadeEnum) => {
 }
 
 export const listEspecialidade = () => {
-    let list: string[] = [];
-
-    for (let i = 1; i <= 5; i++)
-        list.push(getValueEspecialidade(i));
+    let list: EspecialidadeEnum[] = [
+        EspecialidadeEnum.ClinicoGeral,
+        EspecialidadeEnum.Cardiologista,
+        EspecialidadeEnum.Ginecologista,
+        EspecialidadeEnum.Urologista,
+        EspecialidadeEnum.Nutricionista,
+    ];
 
     return list;
 }

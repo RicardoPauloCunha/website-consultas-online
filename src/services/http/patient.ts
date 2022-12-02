@@ -1,38 +1,43 @@
-import { get, post, put } from "../api";
+import { get, getParams, post, put } from "../api";
 import Paciente from "../entities/paciente";
+import GeneroEnum from "../enums/genero";
+import TipoUsuarioEnum from "../enums/tipoUsuario";
 
 const ROOT = "pacientes/";
-
-export const getPatientByIdHttp = async (userId: number): Promise<Paciente> => {
-    let { data } = await get<Paciente>(ROOT + userId);
-    return data;
-}
-
-export const getPatientByCpfHttp = async (cpf: string): Promise<Paciente> => {
-    let { data } = await get<Paciente>(ROOT + cpf);
-    return data;
-}
-
-// TODO: Remover
-export const getPatientCpfByUserIdHttp = async (userId: number): Promise<string> => {
-    let { data } = await get<string>(ROOT + "cpf/" + userId);
-    return data;
-}
 
 export interface PostPatientRequest {
     nome: string;
     email: string;
     senha: string;
-    tipoUsuario?: number;
+    tipoUsuario: TipoUsuarioEnum;
     cpf: string;
     dataNascimento: string;
-    sexo: string;
+    sexo: GeneroEnum;
     endereco: string;
     contato: string;
 }
 
 export const postPatientHttp = async (requestData: PostPatientRequest): Promise<Paciente> => {
     let { data } = await post<PostPatientRequest, Paciente>(ROOT, requestData);
+    return data;
+}
+
+export const listPatientHttp = async (): Promise<Paciente> => {
+    let { data } = await get<Paciente>(ROOT);
+    return data;
+}
+
+export const getPatientByIdHttp = async (userId: number): Promise<Paciente> => {
+    let { data } = await get<Paciente>(ROOT + userId);
+    return data;
+}
+
+interface GetPatientByParams {
+    cpf: string;
+}
+
+export const getPatientByParamsHttp = async (paramsData: GetPatientByParams): Promise<Paciente> => {
+    let { data } = await getParams<GetPatientByParams, Paciente>(ROOT + "filter", paramsData);
     return data;
 }
 

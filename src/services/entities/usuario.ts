@@ -6,7 +6,7 @@ interface Usuario {
     email: string;
     senha: string;
     tipoUsuario: TipoUsuarioEnum;
-    ativo: string;
+    ativo: boolean;
 }
 
 export default Usuario;

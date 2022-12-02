@@ -20,7 +20,7 @@ interface EmployeeFormData {
     sector: string;
 }
 
-const RegisterUser = () => {
+const RegisterEmployee = () => {
     const location = useLocation();
     const routeParams = useParams();
     const formRef = useRef<FormHandles>(null);
@@ -33,13 +33,20 @@ const RegisterUser = () => {
         setIsLoading("");
         setWarning(["", ""]);
 
-        let edition = location.pathname.split("/")[2] === "editar";
+        let edition = location.pathname.split("/")[3] === "editar";
         setIsEdition(edition);
 
         if (edition)
             getEmployee();
         else
-            formRef.current?.reset();
+            // formRef.current?.reset(); // TODO: Remover
+            formRef.current?.setData({
+                name: "Funcionário 1",
+                email: "funcionario1@gmail.com",
+                password: "123456",
+                confirmPassword: "123456",
+                sector: "Recepção"
+            });
         // eslint-disable-next-line
     }, [routeParams]);
 
@@ -97,7 +104,7 @@ const RegisterUser = () => {
                 setor: data.sector
             };
 
-            if (!isEdition) {
+            if (isEdition) {
                 let userId = Number(routeParams.userId);
 
                 await putEmployeeHttp(userId, employeeData).then(() => {
@@ -184,4 +191,4 @@ const RegisterUser = () => {
     );
 }
 
-export default RegisterUser;
+export default RegisterEmployee;

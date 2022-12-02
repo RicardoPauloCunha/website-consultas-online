@@ -15,10 +15,14 @@ const UserCard = ({ id, name, email, userType }: UserCardProps) => {
     const navigate = useNavigate();
 
     const onClickEditData = () => {
-        if (userType === TipoUsuarioEnum.Medico)
-            navigate("/funcionarios/medicos/" + id + "/editar");
-        else
-            navigate("/funcionarios/" + id + "/editar");
+        switch (userType) {
+            case TipoUsuarioEnum.Medico:
+                navigate("/medicos/" + id + "/editar");
+                break;
+            case TipoUsuarioEnum.Recepcionista:
+                navigate("/funcionarios/" + id + "/editar");
+                break;
+        }
     }
 
     return (
@@ -33,12 +37,12 @@ const UserCard = ({ id, name, email, userType }: UserCardProps) => {
                 value={`${getValueTipoUsuario(userType)}`}
             />
 
-            <Button
+            {userType !== TipoUsuarioEnum.Paciente && <Button
                 color="warning"
                 onClick={() => onClickEditData()}
             >
                 Editar
-            </Button>
+            </Button>}
         </DataCardEl>
     );
 }

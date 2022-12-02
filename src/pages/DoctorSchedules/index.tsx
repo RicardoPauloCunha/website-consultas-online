@@ -16,7 +16,7 @@ import Agendamento from "../../services/entities/agendamento";
 import { getValueEspecialidade } from "../../services/enums/especialidade";
 import StatusAgendamentoEnum, { defineColorStatusAgendamento, getValueStatusAgendamento, listStatusAgendamento } from "../../services/enums/statusAgendamento";
 import { postAttendanceHttp } from "../../services/http/attendance";
-import { listDoctorSchedulingByParamsHttp, putSchedulingHttp } from "../../services/http/scheduling";
+import { listDoctorSchedulingByParamsHttp, patchSchedulingHttp } from "../../services/http/scheduling";
 import { DataModal, Form, TextGroupGrid } from "../../styles/components";
 import DocumentTitle from "../../util/documentTitle";
 import { normalizeDate, normalizeString } from "../../util/formatString";
@@ -36,7 +36,7 @@ const DoctorSchedules = () => {
 
     const { loggedUser } = useAuth();
 
-    const _scheduleStatus = listStatusAgendamento();
+    const _scheduleStatuses = listStatusAgendamento();
 
     const [isLoading, setIsLoading] = useState<"get" | "attendance" | "">("");
     const [warning, setWarning] = useState<WarningTuple>(["", ""]);
@@ -59,14 +59,14 @@ const DoctorSchedules = () => {
         // eslint-disable-next-line
     }, [loggedUser]);
 
-    const getSchedules = (period: number | undefined, status: number | undefined) => {
+    const getSchedules = (period: number | undefined, status: StatusAgendamentoEnum | undefined) => {
         setWarning(["", ""]);
 
         if (loggedUser) {
             setIsLoading("get");
             listDoctorSchedulingByParamsHttp({
                 idMedico: loggedUser.userId,
-                periodo: period,
+                dias: period,
                 status
             }).then(response => {
                 setSchedules([...response]);
@@ -93,9 +93,9 @@ const DoctorSchedules = () => {
     }
 
     const sendChangeSchedulingStatus = async (index: number) => {
-        schedules[index].status = StatusAgendamentoEnum.Concluded;
+        schedules[index].status = StatusAgendamentoEnum.Concluido;
 
-        await putSchedulingHttp(schedules[index].id, schedules[index]).catch(() => {
+        await patchSchedulingHttp(schedules[index].id, schedules[index]).catch(() => {
             setWarning(["danger", "Não foi possível atualizar o status do agendamento."]);
             setIsLoading("");
         });
@@ -117,8 +117,8 @@ const DoctorSchedules = () => {
             });
 
             await postAttendanceHttp({
-                description: data.description,
-                agendamento: schedules[scheduleIndex]
+                idAgendamento: schedules[scheduleIndex].id,
+                descricao: data.description
             }).then(() => {
                 sendChangeSchedulingStatus(scheduleIndex).then(() => {
                     setWarning(["success", "Atendimento cadastrado com sucesso."]);
@@ -138,7 +138,7 @@ const DoctorSchedules = () => {
     }
 
     const handlerChangeScheduleStatus = (optionValue: string) => {
-        let scheduleStatus = Number(optionValue);
+        let scheduleStatus = optionValue as StatusAgendamentoEnum;
         let period: number | undefined = Number(filterFormRef.current?.getFieldValue("period"));
 
         if (isNaN(period) || period === 0)
@@ -149,10 +149,8 @@ const DoctorSchedules = () => {
 
     const handlerChangePeriod = (optionValue: string) => {
         let period = Number(optionValue);
-        let scheduleStatus: number | undefined = Number(filterFormRef.current?.getFieldValue("scheduleStatus"));
-
-        if (isNaN(scheduleStatus) || scheduleStatus === 0)
-            scheduleStatus = undefined;
+        let status = filterFormRef.current?.getFieldValue("scheduleStatus");
+        let scheduleStatus = status ? status as StatusAgendamentoEnum : undefined;
 
         getSchedules(period, scheduleStatus);
     }
@@ -169,7 +167,7 @@ const DoctorSchedules = () => {
     }
 
     const onClickPatientAttendances = () => {
-        navigate("/pacientes/" + normalizeString(schedules[scheduleIndex].paciente.cpf) + "/atendimentos");
+        navigate("/pacientes/" + normalizeString(schedules[scheduleIndex].pacienteCpf) + "/atendimentos");
     }
 
     DocumentTitle("Agendamentos médicos | CM");
@@ -187,9 +185,9 @@ const DoctorSchedules = () => {
                     name='scheduleStatus'
                     label='Status do agendamento'
                     placeholder='Filtrar pelo status do agendamento'
-                    options={_scheduleStatus.map((x, index) => ({
-                        value: `${index + 1}`,
-                        label: x
+                    options={_scheduleStatuses.map(x => ({
+                        value: x,
+                        label: getValueStatusAgendamento(x)
                     }))}
                     handlerChange={handlerChangeScheduleStatus}
                 />
@@ -214,7 +212,7 @@ const DoctorSchedules = () => {
                 <SchedulingCard
                     key={x.id}
                     id={x.id}
-                    patientName={x.paciente.nome}
+                    patientName={x.pacienteNome}
                     time={x.horaAgendada}
                     date={x.dataAgendada}
                     status={x.status}
@@ -240,7 +238,7 @@ const DoctorSchedules = () => {
                     >
                         <DataText
                             label="Paciente"
-                            value={schedules[scheduleIndex].paciente.nome}
+                            value={schedules[scheduleIndex].pacienteNome}
                             isFullRow={true}
                         />
 
@@ -270,15 +268,15 @@ const DoctorSchedules = () => {
                 </ModalBody>
 
                 <ModalFooter>
-                    {schedules[scheduleIndex]?.status === StatusAgendamentoEnum.Progress && <Button
+                    {schedules[scheduleIndex]?.status === StatusAgendamentoEnum.Andamento && <Button
                         color="secondary"
                         onClick={() => onClickFinalizeAttendance()}
                     >
                         Atendimento
                     </Button>}
 
-                    {(schedules[scheduleIndex]?.status === StatusAgendamentoEnum.Progress
-                        || schedules[scheduleIndex]?.status === StatusAgendamentoEnum.Concluded) && <Button
+                    {(schedules[scheduleIndex]?.status === StatusAgendamentoEnum.Andamento
+                        || schedules[scheduleIndex]?.status === StatusAgendamentoEnum.Concluido) && <Button
                             color="info"
                             outline
                             onClick={() => onClickPatientAttendances()}

@@ -1,10 +1,11 @@
-import Agendamento from "./agendamento";
+import EspecialidadeEnum from "../enums/especialidade";
 
 interface Atendimento {
-    idAtendimento: number;
-    agendamento: Agendamento;
-    dataCriacao: string;
+    id: number;
     descricao: string;
+    dataCriacao: string;
+    agendamentoEspecialidade: EspecialidadeEnum;
+    agendamentoMedicoNome: string;
 }
 
 export default Atendimento;

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Badge } from "reactstrap";
+import StatusAgendamentoEnum from "../../services/enums/statusAgendamento";
 import { StatusBadgeEl } from "./styles";
 
 type StatusBadgeProps = {
     label: string;
-    status: number | undefined;
+    status: StatusAgendamentoEnum | undefined;
     value: string;
-    defineColor: (status: number) => string;
+    defineColor: (status: StatusAgendamentoEnum) => string;
 }
 
 const StatusBadge = ({ label, status, value, defineColor }: StatusBadgeProps) => {

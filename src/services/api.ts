@@ -16,3 +16,7 @@ export async function post<T, R>(path: string, data: T): Promise<AxiosResponse<R
 export async function put<T, R>(path: string, data: T): Promise<AxiosResponse<R>> {
     return await Axios.put(path, data);
 }
+
+export async function patch<T, R>(path: string, data: T): Promise<AxiosResponse<R>> {
+    return await Axios.patch(path, data);
+}

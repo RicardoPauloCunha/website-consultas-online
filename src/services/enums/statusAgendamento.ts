@@ -1,22 +1,22 @@
 enum StatusAgendamentoEnum {
-    Scheduled = 1,
-    Unchecked = 2,
-    Progress = 3,
-    Concluded = 4,
-    Canceled = 5,
+    Agendado = "AGENDADO",
+    Desmarcado = "DESMARCADO",
+    Andamento = "ANDAMENTO",
+    Concluido = "CONCLUIDO",
+    Cancelado = "CANCELADO",
 }
 
 export const getValueStatusAgendamento = (status: StatusAgendamentoEnum) => {
     switch (status) {
-        case StatusAgendamentoEnum.Scheduled:
+        case StatusAgendamentoEnum.Agendado:
             return "Agendado";
-        case StatusAgendamentoEnum.Unchecked:
+        case StatusAgendamentoEnum.Desmarcado:
             return "Desmarcado";
-        case StatusAgendamentoEnum.Progress:
+        case StatusAgendamentoEnum.Andamento:
             return "Andamento";
-        case StatusAgendamentoEnum.Concluded:
+        case StatusAgendamentoEnum.Concluido:
             return "Concluído";
-        case StatusAgendamentoEnum.Canceled:
+        case StatusAgendamentoEnum.Cancelado:
             return "Cancelado";
         default:
             return "";
@@ -24,24 +24,27 @@ export const getValueStatusAgendamento = (status: StatusAgendamentoEnum) => {
 }
 
 export const listStatusAgendamento = () => {
-    let list: string[] = [];
-
-    for (let i = 1; i <= 4; i++)
-        list.push(getValueStatusAgendamento(i));
+    let list: StatusAgendamentoEnum[] = [
+        StatusAgendamentoEnum.Agendado,
+        StatusAgendamentoEnum.Desmarcado,
+        StatusAgendamentoEnum.Andamento,
+        StatusAgendamentoEnum.Concluido,
+        StatusAgendamentoEnum.Cancelado,
+    ];
 
     return list;
 }
 
-export const defineColorStatusAgendamento = (status: number) => {
+export const defineColorStatusAgendamento = (status: StatusAgendamentoEnum) => {
     switch (status) {
-        case StatusAgendamentoEnum.Scheduled:
+        case StatusAgendamentoEnum.Agendado:
             return "info";
-        case StatusAgendamentoEnum.Unchecked:
-        case StatusAgendamentoEnum.Canceled:
+        case StatusAgendamentoEnum.Desmarcado:
+        case StatusAgendamentoEnum.Cancelado:
             return "danger";
-        case StatusAgendamentoEnum.Progress:
+        case StatusAgendamentoEnum.Andamento:
             return "warning";
-        case StatusAgendamentoEnum.Concluded:
+        case StatusAgendamentoEnum.Concluido:
             return "success";
         default:
             return "";

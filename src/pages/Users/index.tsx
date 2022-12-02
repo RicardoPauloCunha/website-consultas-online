@@ -4,7 +4,7 @@ import SelectInput from "../../components/Input/select";
 import SpinnerBlock from "../../components/SpinnerBlock";
 import Warning from "../../components/Warning";
 import Usuario from "../../services/entities/usuario";
-import TipoUsuarioEnum, { listTipoUsuario } from "../../services/enums/tipoUsuario";
+import TipoUsuarioEnum, { getValueTipoUsuario, listTipoUsuario } from "../../services/enums/tipoUsuario";
 import { listUserByParamsHttp } from "../../services/http/user";
 import { Form } from "../../styles/components";
 import DocumentTitle from "../../util/documentTitle";
@@ -19,10 +19,10 @@ const Users = () => {
     const [users, setUsers] = useState<Usuario[]>([]);
 
     useEffect(() => {
-        getUsers(TipoUsuarioEnum.Recepcionista);
+        getUsers(TipoUsuarioEnum.Paciente);
     }, []);
 
-    const getUsers = (userType: number) => {
+    const getUsers = (userType: TipoUsuarioEnum) => {
         setWarning(["", ""]);
 
         setIsLoading("get");
@@ -39,7 +39,7 @@ const Users = () => {
     }
 
     const handlerChangeUserType = (optionValue: string) => {
-        let userType = Number(optionValue);
+        let userType = optionValue as TipoUsuarioEnum;
 
         getUsers(userType);
     }
@@ -59,9 +59,9 @@ const Users = () => {
                     name='userType'
                     label='Tipo de usuário'
                     placeholder='Filtrar pelo tipo de usuário'
-                    options={_userTypes.map((x, index) => ({
-                        value: `${index + 1}`,
-                        label: x
+                    options={_userTypes.map(x => ({
+                        value: x,
+                        label: getValueTipoUsuario(x)
                     }))}
                     handlerChange={handlerChangeUserType}
                 />

@@ -6,7 +6,7 @@ import FieldInput from "../../components/Input";
 import SelectInput from "../../components/Input/select";
 import LoadingButton from "../../components/LoadingButton";
 import Warning from "../../components/Warning";
-import { listEspecialidade } from "../../services/enums/especialidade";
+import EspecialidadeEnum, { getValueEspecialidade, listEspecialidade } from "../../services/enums/especialidade";
 import TipoUsuarioEnum from "../../services/enums/tipoUsuario";
 import { getDoctorByIdHttp, postDoctorHttp, PostDoctorRequest, putDoctorHttp } from "../../services/http/doctor";
 import { Form } from "../../styles/components";
@@ -17,14 +17,14 @@ import getValidationErrors from "../../util/getValidationErrors";
 interface DoctorFormData {
     name: string;
     crm: string;
-    specialty: number;
+    specialty: string;
     email: string;
     password: string;
     confirmPassword: string;
     sector: string;
 }
 
-const RegisterUser = () => {
+const RegisterDoctor = () => {
     const location = useLocation();
     const routeParams = useParams();
     const formRef = useRef<FormHandles>(null);
@@ -39,13 +39,22 @@ const RegisterUser = () => {
         setIsLoading("");
         setWarning(["", ""]);
 
-        let edition = location.pathname.split("/")[2] === "editar";
+        let edition = location.pathname.split("/")[3] === "editar";
         setIsEdition(edition);
 
         if (edition)
             getDoctor();
         else
-            formRef.current?.reset();
+            // formRef.current?.reset(); // TODO: Remover
+            formRef.current?.setData({
+                name: "Médico",
+                crm: "123456",
+                specialty: EspecialidadeEnum.Cardiologista,
+                email: "medico1@gmail.com",
+                password: "123456",
+                confirmPassword: "123456",
+                sector: "Atendimentos"
+            });
         // eslint-disable-next-line
     }, [routeParams]);
 
@@ -59,7 +68,7 @@ const RegisterUser = () => {
             formRef.current?.setData({
                 name: response.nome,
                 crm: response.crm,
-                specialty: response.especialidade.toString(),
+                specialty: response.especialidade,
                 email: response.email,
                 password: response.senha,
                 confirmPassword: response.senha,
@@ -102,7 +111,7 @@ const RegisterUser = () => {
             let doctorData: PostDoctorRequest = {
                 nome: data.name,
                 crm: data.crm,
-                especialidade: Number(data.specialty),
+                especialidade: data.specialty as EspecialidadeEnum,
                 email: data.email,
                 senha: data.password,
                 tipoUsuario: TipoUsuarioEnum.Medico,
@@ -170,9 +179,9 @@ const RegisterUser = () => {
                     name='specialty'
                     label='Especialidade'
                     placeholder='Selecione a especialidade'
-                    options={_specialties.map((x, index) => ({
-                        value: `${index + 1}`,
-                        label: x
+                    options={_specialties.map(x => ({
+                        value: x,
+                        label: getValueEspecialidade(x)
                     }))}
                 />
 
@@ -212,4 +221,4 @@ const RegisterUser = () => {
     );
 }
 
-export default RegisterUser;
+export default RegisterDoctor;

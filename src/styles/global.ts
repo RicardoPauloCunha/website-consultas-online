@@ -39,10 +39,14 @@ export default createGlobalStyle`
 
     h2 {
         color: var(--color-gray-300);
-        margin: 3rem 0 1rem;
+        margin: 0 0 1rem;
 
         form + & {
             margin-top: 5rem;
+        }
+
+        div + & {
+            margin-top: 2rem;
         }
     }
 

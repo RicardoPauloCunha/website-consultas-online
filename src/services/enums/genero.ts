@@ -1,6 +1,6 @@
 enum GeneroEnum {
-    Masculino = 1,
-    Feminino = 2
+    Masculino = "MASCULINO",
+    Feminino = "FEMININO"
 }
 
 export const getValueGenero = (type: GeneroEnum) => {
@@ -15,10 +15,10 @@ export const getValueGenero = (type: GeneroEnum) => {
 }
 
 export const listGenero = () => {
-    let list: string[] = [];
-
-    for (let i = 1; i <= 2; i++)
-        list.push(getValueGenero(i));
+    let list: GeneroEnum[] = [
+        GeneroEnum.Masculino,
+        GeneroEnum.Feminino
+    ];
 
     return list;
 }

@@ -65,13 +65,42 @@ const Menu = () => {
                         className="me-auto"
                         navbar
                     >
+                        {loggedUser === undefined && <>
+                            <NavItem>
+                                <NavLink
+                                    to="/pacientes/cadastrar"
+                                    tag={Link}
+                                >
+                                    Criar conta
+                                </NavLink>
+                            </NavItem>
+                        </>}
+
                         {loggedUser?.userType === TipoUsuarioEnum.Gerente && <>
                             <NavItem>
                                 <NavLink
-                                    to="/funcionarios/listar"
+                                    to="/usuarios/listar"
+                                    tag={Link}
+                                >
+                                    Usuários
+                                </NavLink>
+                            </NavItem>
+
+                            <NavItem>
+                                <NavLink
+                                    to="/funcionarios/cadastrar"
                                     tag={Link}
                                 >
                                     Funcionários
+                                </NavLink>
+                            </NavItem>
+
+                            <NavItem>
+                                <NavLink
+                                    to="/medicos/cadastrar"
+                                    tag={Link}
+                                >
+                                    Médicos
                                 </NavLink>
                             </NavItem>
                         </>}
@@ -87,6 +116,17 @@ const Menu = () => {
                                     </NavLink>
                                 </NavItem>
                             </>}
+
+                        {loggedUser?.userType === TipoUsuarioEnum.Paciente && <>
+                            <NavItem>
+                                <NavLink
+                                    to="/pacientes/editar"
+                                    tag={Link}
+                                >
+                                    Editar perfil
+                                </NavLink>
+                            </NavItem>
+                        </>}
 
                         {loggedUser?.userType === TipoUsuarioEnum.Medico && <>
                             <NavItem>

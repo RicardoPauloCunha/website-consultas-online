@@ -11,10 +11,10 @@ import Warning from "../../components/Warning";
 import { useAuth } from "../../contexts/auth";
 import Medico from "../../services/entities/medico";
 import Paciente from "../../services/entities/paciente";
-import { listEspecialidade } from "../../services/enums/especialidade";
+import EspecialidadeEnum, { getValueEspecialidade, listEspecialidade } from "../../services/enums/especialidade";
 import TipoUsuarioEnum from "../../services/enums/tipoUsuario";
 import { listDoctorByParamsHttp } from "../../services/http/doctor";
-import { getPatientByCpfHttp } from "../../services/http/patient";
+import { getPatientByParamsHttp } from "../../services/http/patient";
 import { postSchedulingHttp } from "../../services/http/scheduling";
 import { Form } from "../../styles/components";
 import DocumentTitle from "../../util/documentTitle";
@@ -23,7 +23,7 @@ import { WarningTuple } from "../../util/getHttpErrors";
 import getValidationErrors from "../../util/getValidationErrors";
 
 type SchedulingFormData = {
-    specialty: number;
+    specialty: string;
     doctorId: number;
     time: string;
     date: string;
@@ -50,7 +50,7 @@ const RegisterScheduling = () => {
         // eslint-disable-next-line
     }, []);
 
-    const getDoctors = (specialty: number | undefined) => {
+    const getDoctors = (specialty: EspecialidadeEnum | undefined) => {
         listDoctorByParamsHttp({
             especialidade: specialty
         }).then(response => {
@@ -70,7 +70,9 @@ const RegisterScheduling = () => {
         }
 
         setIsLoading("get");
-        getPatientByCpfHttp(cpf).then(response => {
+        getPatientByParamsHttp({
+            cpf
+        }).then(response => {
             setPatient(response);
             setWarning(["success", "Paciente encontrado."]);
         }).catch(() => {
@@ -126,12 +128,11 @@ const RegisterScheduling = () => {
             }
 
             data.doctorId = Number(data.doctorId);
-            data.specialty = Number(data.specialty);
 
             postSchedulingHttp({
                 idPaciente,
                 idMedico: data.doctorId,
-                especialidade: data.specialty,
+                especialidade: data.specialty as EspecialidadeEnum,
                 dataCriacao: data.date, // TODO: Data atual
                 dataAgendada: data.date,
                 horaAgendada: data.time
@@ -152,7 +153,7 @@ const RegisterScheduling = () => {
     }
 
     const handlerChangeSpecialty = (optionValue: string) => {
-        let specialty = Number(optionValue);
+        let specialty = optionValue as EspecialidadeEnum;
 
         getDoctors(specialty);
     }
@@ -203,9 +204,9 @@ const RegisterScheduling = () => {
                         name='specialty'
                         label='Especialidade'
                         placeholder='Selecione a especialidade'
-                        options={_specialties.map((x, index) => ({
-                            value: `${index + 1}`,
-                            label: x
+                        options={_specialties.map(x => ({
+                            value: x,
+                            label: getValueEspecialidade(x)
                         }))}
                         handlerChange={handlerChangeSpecialty}
                     />

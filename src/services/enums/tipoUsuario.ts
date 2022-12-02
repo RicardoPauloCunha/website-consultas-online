@@ -1,8 +1,8 @@
 enum TipoUsuarioEnum {
-    Gerente = 1,
-    Recepcionista = 2,
-    Medico = 3,
-    Paciente = 4
+    Gerente = "GERENTE",
+    Recepcionista = "RECEPCIONISTA",
+    Medico = "MEDICO",
+    Paciente = "PACIENTE"
 }
 
 export const getValueTipoUsuario = (type: TipoUsuarioEnum) => {
@@ -21,10 +21,12 @@ export const getValueTipoUsuario = (type: TipoUsuarioEnum) => {
 }
 
 export const listTipoUsuario = () => {
-    let list: string[] = [];
-
-    for (let i = 1; i <= 4; i++)
-        list.push(getValueTipoUsuario(i));
+    let list: TipoUsuarioEnum[] = [
+        TipoUsuarioEnum.Gerente,
+        TipoUsuarioEnum.Recepcionista,
+        TipoUsuarioEnum.Medico,
+        TipoUsuarioEnum.Paciente
+    ];
 
     return list;
 }

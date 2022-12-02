@@ -1,16 +1,16 @@
 import EspecialidadeEnum from "../enums/especialidade";
 import StatusAgendamentoEnum from "../enums/statusAgendamento";
-import Medico from "./medico";
-import Paciente from "./paciente";
 
 interface Agendamento {
     id: number;
-    medico: Medico;
-    paciente: Paciente;
+    pacienteNome: string;
+    pacienteCpf: string;
+    pacienteContato: string;
+    medicoNome: string;
+    especialidade: EspecialidadeEnum;
     dataCriacao: string;
     dataAgendada: string;
     horaAgendada: string;
-    especialidade: EspecialidadeEnum;
     status: StatusAgendamentoEnum;
 }
 

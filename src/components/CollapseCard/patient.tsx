@@ -4,16 +4,17 @@ import DataText from "../DataText";
 import { CollapseCardEl } from "./styles";
 
 type PatientCollapseCardProps = {
+    alterColor?: boolean;
     cpf: string;
     name: string;
     contact: string;
     address: string;
 }
 
-const PatientCollapseCard = ({ cpf, name, contact, address }: PatientCollapseCardProps) => {
+const PatientCollapseCard = ({ alterColor, cpf, name, contact, address }: PatientCollapseCardProps) => {
     return (
         <UncontrolledAccordion open="">
-            <CollapseCardEl className={`collapse-card-patient collapse-card-color-gray`}>
+            <CollapseCardEl className={`collapse-card-patient ${alterColor ? "collapse-card-color-gray" : ""}`}>
                 <AccordionHeader targetId={cpf}>
                     {`${name} - ${formatCpf(cpf)}`}
                 </AccordionHeader>

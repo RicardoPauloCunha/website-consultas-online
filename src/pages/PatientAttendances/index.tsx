@@ -5,7 +5,9 @@ import AttendanceCard from "../../components/DataCard/attendance";
 import SpinnerBlock from "../../components/SpinnerBlock";
 import Warning from "../../components/Warning";
 import Atendimento from "../../services/entities/atendimento";
-import { listAttendanceByCpfHttp } from "../../services/http/attendance";
+import Paciente from "../../services/entities/paciente";
+import { ListAttendanceByParamsHttp } from "../../services/http/attendance";
+import { getPatientByParamsHttp } from "../../services/http/patient";
 import DocumentTitle from "../../util/documentTitle";
 import { WarningTuple } from "../../util/getHttpErrors";
 
@@ -15,30 +17,41 @@ const PatientAttendances = () => {
     const [isLoading, setIsLoading] = useState<"get" | "">("");
     const [warning, setWarning] = useState<WarningTuple>(["", ""]);
 
+    const [patient, setPatient] = useState<Paciente | undefined>(undefined);
     const [attendances, setAttendances] = useState<Atendimento[]>([]);
 
     useEffect(() => {
-        getAttendances();
+        getPatient();
         // eslint-disable-next-line
     }, []);
 
-    const getAttendances = () => {
+    const getAttendances = (userId: number) => {
+        ListAttendanceByParamsHttp({
+            idPaciente: userId
+        }).then(response => {
+            setAttendances([...response]);
+
+            if (response.length === 0)
+                setWarning(["warning", "Nenhum atendimento do paciente foi encontrado."]);
+
+            setIsLoading("");
+        });
+    }
+
+    const getPatient = () => {
         setWarning(["", ""]);
+        setIsLoading("get");
 
         if (routeParams.patientCpf) {
-            setIsLoading("get");
-            listAttendanceByCpfHttp(routeParams.patientCpf).then(response => {
-                setAttendances([...response]);
-
-                if (response.length === 0)
-                    setWarning(["warning", "Nenhum atendimento do paciente foi encontrado."]);
-
+            getPatientByParamsHttp({
+                cpf: routeParams.patientCpf
+            }).then(response => {
+                setPatient(response);
+                getAttendances(response.id);
+            }).catch(() => {
+                setWarning(["danger", "Paciente inválido."]);
                 setIsLoading("");
             });
-        }
-        else {
-            setWarning(["danger", "Paciente inválido."]);
-            return;
         }
     }
 
@@ -50,22 +63,23 @@ const PatientAttendances = () => {
 
             {isLoading === "get" && <SpinnerBlock />}
 
-            <Warning value={warning} />
-
-            {attendances[0] !== undefined && <PatientCollapseCard
-                cpf={attendances[0].agendamento.paciente.cpf}
-                name={attendances[0].agendamento.paciente.nome}
-                contact={attendances[0].agendamento.paciente.contato}
-                address={attendances[0].agendamento.paciente.endereco}
+            {patient !== undefined && <PatientCollapseCard
+                alterColor={true}
+                cpf={patient.cpf}
+                name={patient.nome}
+                contact={patient.contato}
+                address={patient.endereco}
             />}
+
+            <Warning value={warning} />
 
             {attendances.map(x => (
                 <AttendanceCard
-                    key={x.idAtendimento}
-                    id={x.idAtendimento}
+                    key={x.id}
+                    id={x.id}
                     date={x.dataCriacao}
-                    specialty={x.agendamento.especialidade}
-                    doctorName={x.agendamento.medico.nome}
+                    specialty={x.agendamentoEspecialidade}
+                    doctorName={x.agendamentoMedicoNome}
                     description={x.descricao}
                 />
             ))}

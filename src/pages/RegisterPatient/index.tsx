@@ -1,6 +1,6 @@
 import { FormHandles, SubmitHandler } from "@unform/core";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import FieldInput from "../../components/Input";
 import MaskInput from "../../components/Input/mask";
@@ -8,7 +8,8 @@ import SelectInput from "../../components/Input/select";
 import LoadingButton from "../../components/LoadingButton";
 import Warning from "../../components/Warning";
 import { useAuth } from "../../contexts/auth";
-import { listGenero } from "../../services/enums/genero";
+import { handlerSignIn } from "../../localStorages/auth";
+import GeneroEnum, { getValueGenero, listGenero } from "../../services/enums/genero";
 import TipoUsuarioEnum from "../../services/enums/tipoUsuario";
 import { getPatientByIdHttp, postPatientHttp, PostPatientRequest, putPatientHttp } from "../../services/http/patient";
 import { Form } from "../../styles/components";
@@ -36,11 +37,12 @@ type PatientFormData = {
 }
 
 const Patient = () => {
+    const location = useLocation();
     const routeParams = useParams();
     const formRef = useRef<FormHandles>(null);
     const navigate = useNavigate();
 
-    const { loggedUser } = useAuth();
+    const { loggedUser, defineLoggedUser } = useAuth();
 
     const _genderTypes = listGenero();
 
@@ -62,7 +64,23 @@ const Patient = () => {
         if (edition)
             getPatient();
         else
-            formRef.current?.reset();
+            // formRef.current?.reset(); // TODO: Descomentar
+            formRef.current?.setData({
+                name: "Usuario 1",
+                email: "user1@gmail.com",
+                password: "123456",
+                confirmPassword: "123456",
+                cpf: "33695177608",
+                birthDate: "01012000",
+                gender: GeneroEnum.Masculino,
+                cep: "69058-289",
+                street: "Rua AAA-A",
+                number: "Nº 1",
+                district: "Bairro AAA",
+                city: "Cidade AA",
+                state: "Estado A",
+                contact: "92997258982"
+            });
         // eslint-disable-next-line
     }, [routeParams]);
 
@@ -96,9 +114,6 @@ const Patient = () => {
     }
 
     const submitPatientForm: SubmitHandler<PatientFormData> = async (data) => {
-        if (!loggedUser || loggedUser?.userType !== TipoUsuarioEnum.Paciente)
-            return;
-
         try {
             setIsLoading("form");
             setWarning(["", ""]);
@@ -146,13 +161,14 @@ const Patient = () => {
                 tipoUsuario: TipoUsuarioEnum.Paciente,
                 cpf: normalizeString(data.cpf),
                 dataNascimento: normalizeDate(data.birthDate),
-                sexo: data.gender,
+                sexo: data.gender as GeneroEnum,
                 endereco: concatenateAddress({ ...data }),
                 contato: normalizeString(data.contact),
             }
 
             if (isEdition) {
-                patientData.tipoUsuario = undefined;
+                if (!loggedUser || loggedUser.userType !== TipoUsuarioEnum.Paciente)
+                    return;
 
                 putPatientHttp(loggedUser.userId, patientData).then(() => {
                     setWarning(["success", "Paciente editado com sucesso."]);
@@ -161,10 +177,24 @@ const Patient = () => {
                 }).finally(() => { setIsLoading(""); });
             }
             else {
-                postPatientHttp(patientData).then(() => {
-                    let from = isReceptionist
-                        ? "/consultas"
-                        : "/consultas-paciente";
+                postPatientHttp(patientData).then(response => {
+                    let from = "";
+
+                    if (isReceptionist) {
+                        from = "/consultas";
+                    }
+                    else {
+                        from = "/meus-agendamentos/listar";
+
+                        let dataToken = handlerSignIn({
+                            userId: response.id,
+                            name: response.nome,
+                            cpf: response.cpf,
+                            userType: response.tipoUsuario
+                        });
+
+                        defineLoggedUser(dataToken);
+                    }
 
                     navigate(from);
                 }).catch(() => {
@@ -189,7 +219,7 @@ const Patient = () => {
             <Form
                 ref={formRef}
                 onSubmit={submitPatientForm}
-                className="form-modal"
+                className="form-data"
             >
                 <h2>Informações pessoais</h2>
 
@@ -221,7 +251,7 @@ const Patient = () => {
                     placeholder='Selecione o gênero'
                     options={_genderTypes.map(x => ({
                         value: x,
-                        label: x
+                        label: getValueGenero(x)
                     }))}
                 />
 
@@ -302,7 +332,7 @@ const Patient = () => {
 
                 <LoadingButton
                     text={isEdition ? "Editar" : "Cadastrar"}
-                    isLoading={isLoading === "form"}
+                    isLoading={isLoading === "form" || isLoading === "get"}
                     type='submit'
                     color={isEdition ? "warning" : "secondary"}
                 />
