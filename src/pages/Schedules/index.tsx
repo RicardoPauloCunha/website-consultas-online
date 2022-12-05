@@ -1,5 +1,6 @@
 import { FormHandles } from "@unform/core";
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Button, Col, ModalBody, ModalFooter, ModalHeader, Row } from "reactstrap";
 import SchedulingCard from "../../components/DataCard/scheduling";
 import DataText from "../../components/DataText";
@@ -11,10 +12,10 @@ import StatusBadge from "../../components/StatusBadge";
 import Warning from "../../components/Warning";
 import { useAuth } from "../../contexts/auth";
 import Agendamento from "../../services/entities/agendamento";
-import { getValueEspecialidade } from "../../services/enums/especialidade";
+import EspecialidadeEnum, { getValueEspecialidade, listEspecialidade } from "../../services/enums/especialidade";
 import StatusAgendamentoEnum, { defineColorStatusAgendamento, getValueStatusAgendamento, listStatusAgendamento } from "../../services/enums/statusAgendamento";
 import TipoUsuarioEnum from "../../services/enums/tipoUsuario";
-import { listSchedulingByParamsHttp, patchSchedulingHttp } from "../../services/http/scheduling";
+import { listSchedulingByParamsHttp, listSchedulingBySpecialtyHttp, patchSchedulingHttp } from "../../services/http/scheduling";
 import { DataModal, Form, TextGroupGrid } from "../../styles/components";
 import DocumentTitle from "../../util/documentTitle";
 import { formatCellphone, formatCpf, normalizeDate, normalizeString } from "../../util/formatString";
@@ -23,16 +24,19 @@ import { WarningTuple } from "../../util/getHttpErrors";
 type ModalString = "update" | "schedule" | "";
 
 const Schedules = () => {
+    const location = useLocation();
     const formRef = useRef<FormHandles>(null);
 
     const { loggedUser } = useAuth();
 
+    const _specialties = listEspecialidade();
     const _scheduleStatus = listStatusAgendamento();
 
     const [isLoading, setIsLoading] = useState<"get" | "update" | "">("");
     const [warning, setWarning] = useState<WarningTuple>(["", ""]);
     const [modal, setModal] = useState<ModalString>("");
     const [isReceptionist, setIsReceptionist] = useState(false);
+    const [isReport, setIsReport] = useState(false);
 
     const [schedules, setSchedules] = useState<Agendamento[]>([]);
     const [scheduleIndex, setScheduleIndex] = useState(-1);
@@ -41,14 +45,28 @@ const Schedules = () => {
         let receptionist = loggedUser?.userType === TipoUsuarioEnum.Recepcionista;
         setIsReceptionist(receptionist);
 
-        if (receptionist)
-            getSchedules(undefined, undefined);
-        else if (loggedUser)
-            getSchedules(undefined, loggedUser.cpf);
-        else
-            setIsLoading("get");
+        let report = location.pathname.split("/")[1] === "relatorios-consultas";
+        setIsReport(report);
+
+        setIsLoading("get");
+
+        if (report) {
+            let specialty = EspecialidadeEnum.ClinicoGeral;
+
+            getSchedulesReport(specialty);
+
+            setTimeout(() => {
+                formRef.current?.setFieldValue("specialty", specialty);
+            }, 200);
+        }
+        else {
+            if (receptionist)
+                getSchedules(undefined, undefined);
+            else if (loggedUser)
+                getSchedules(undefined, loggedUser.cpf);
+        }
         // eslint-disable-next-line
-    }, []);
+    }, [location.pathname]);
 
     const getSchedules = (scheduleStatus: StatusAgendamentoEnum | undefined, cpf: string | undefined) => {
         setWarning(["", ""]);
@@ -58,12 +76,16 @@ const Schedules = () => {
             cpf: cpf,
             status: scheduleStatus
         }).then(response => {
-            setSchedules([...response]);
+            defineSchedules(response);
+        });
+    }
 
-            if (response.length === 0)
-                setWarning(["warning", "Nenhum agendamento foi encontrado."]);
+    const getSchedulesReport = (specialty: EspecialidadeEnum) => {
+        setWarning(["", ""]);
 
-            setIsLoading("");
+        setIsLoading("get");
+        listSchedulingBySpecialtyHttp(specialty).then(response => {
+            defineSchedules(response);
         });
     }
 
@@ -75,6 +97,15 @@ const Schedules = () => {
         else {
             setModal("");
         }
+    }
+
+    const defineSchedules = (schedules: Agendamento[]) => {
+        setSchedules([...schedules]);
+
+        if (schedules.length === 0)
+            setWarning(["warning", "Nenhum agendamento foi encontrado."]);
+
+        setIsLoading("");
     }
 
     const sendChangeStatus = (statusAgendamento: StatusAgendamentoEnum) => {
@@ -127,6 +158,12 @@ const Schedules = () => {
         getSchedules(scheduleStatus, cpf);
     }
 
+    const handlerChangeSpecialty = (optionValue: string) => {
+        let specialty = optionValue as EspecialidadeEnum;
+
+        getSchedulesReport(specialty);
+    }
+
     const onClickOpenSchedule = (scheduleId: number) => {
         let index = schedules.findIndex(x => x.id === scheduleId);
 
@@ -149,39 +186,55 @@ const Schedules = () => {
                 onSubmit={() => { }}
                 className="form-search"
             >
-                <SelectInput
-                    name='scheduleStatus'
-                    label='Status do agendamento'
-                    placeholder='Filtrar pelo status do agendamento'
-                    options={_scheduleStatus.map(x => ({
-                        value: x,
-                        label: getValueStatusAgendamento(x)
-                    }))}
-                    handlerChange={handlerChangeScheduleStatus}
-                />
-
-                {isReceptionist && <Row>
-                    <Col md={10}>
-                        <MaskInput
-                            name='patientCpf'
-                            label='CPF do paciente'
-                            placeholder='000.000.000-00'
-                            mask="999.999.999-99"
-                            maskChar=""
+                {isReport
+                    ? <>
+                        <SelectInput
+                            name='specialty'
+                            label='Especialidade'
+                            placeholder='Selecione a especialidade'
+                            options={_specialties.map(x => ({
+                                value: x,
+                                label: getValueEspecialidade(x)
+                            }))}
+                            handlerChange={handlerChangeSpecialty}
                         />
-                    </Col>
+                    </>
+                    : <>
+                        <SelectInput
+                            name='scheduleStatus'
+                            label='Status do agendamento'
+                            placeholder='Filtrar pelo status do agendamento'
+                            options={_scheduleStatus.map(x => ({
+                                value: x,
+                                label: getValueStatusAgendamento(x)
+                            }))}
+                            handlerChange={handlerChangeScheduleStatus}
+                        />
 
-                    <Col md={2}>
-                        <Button
-                            type="button"
-                            color="secondary"
-                            outline
-                            onClick={() => handlerSearchScheduleByCpf()}
-                        >
-                            Buscar
-                        </Button>
-                    </Col>
-                </Row>}
+                        {isReceptionist && <Row>
+                            <Col md={10}>
+                                <MaskInput
+                                    name='patientCpf'
+                                    label='CPF do paciente'
+                                    placeholder='000.000.000-00'
+                                    mask="999.999.999-99"
+                                    maskChar=""
+                                />
+                            </Col>
+
+                            <Col md={2}>
+                                <Button
+                                    type="button"
+                                    color="secondary"
+                                    outline
+                                    onClick={() => handlerSearchScheduleByCpf()}
+                                >
+                                    Buscar
+                                </Button>
+                            </Col>
+                        </Row>}
+                    </>
+                }
 
                 {modal === "" && <Warning value={warning} />}
             </Form>
@@ -217,7 +270,7 @@ const Schedules = () => {
                     {schedules[scheduleIndex] && <TextGroupGrid
                         className="text-group-grid-modal"
                     >
-                        {isReceptionist && <>
+                        {(isReceptionist || isReport) && <>
                             <DataText
                                 label="Paciente"
                                 value={schedules[scheduleIndex].pacienteNome}
@@ -266,7 +319,7 @@ const Schedules = () => {
                 </ModalBody>
 
                 <ModalFooter>
-                    {schedules[scheduleIndex]?.status === StatusAgendamentoEnum.Agendado && <>
+                    {!isReport && schedules[scheduleIndex]?.status === StatusAgendamentoEnum.Agendado && <>
                         {isReceptionist && <LoadingButton
                             text="Confirmar comparecimento"
                             isLoading={isLoading === "update"}

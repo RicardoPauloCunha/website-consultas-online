@@ -1,4 +1,4 @@
-import { get, getParams } from '../api';
+import { get, getParams, post } from '../api';
 import Usuario from '../entities/usuario';
 import TipoUsuarioEnum from '../enums/tipoUsuario';
 
@@ -10,8 +10,7 @@ interface PostLoginUserRequest {
 }
 
 export const postLoginUserHttp = async (requestData: PostLoginUserRequest): Promise<Usuario> => {
-    // let { data } = await post<PostLoginUserRequest, Usuario>(ROOT + "login", requestData);
-    let { data } = await get<Usuario>(ROOT + requestData.email);
+    let { data } = await post<PostLoginUserRequest, Usuario>(ROOT + "login", requestData);
     return data;
 }
 

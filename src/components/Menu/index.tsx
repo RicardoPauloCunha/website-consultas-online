@@ -30,6 +30,7 @@ const Menu = () => {
                 case TipoUsuarioEnum.Gerente:
                     items.push(["/usuarios/listar", "Usuários"]);
                     items.push(["/funcionarios/cadastrar", "Cadastrar usuário"]);
+                    items.push(["/relatorios-consultas", "Relatório consultas"]);
                     break;
                 case TipoUsuarioEnum.Recepcionista:
                     items.push(["/agendamentos/listar", "Agendamentos"]);

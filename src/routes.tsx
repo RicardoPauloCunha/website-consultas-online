@@ -100,23 +100,6 @@ const PagesRoutes = () => {
                         />
                     </Route>
 
-                    <Route path="meus-agendamentos"
-                        element={<PatientSchedulesMenu />}
-                    >
-                        <Route path="listar"
-                            element={<RequireAuth
-                                userType={TipoUsuarioEnum.Paciente}
-                                children={<Schedules />}
-                            />}
-                        />
-                        <Route path="cadastrar"
-                            element={<RequireAuth
-                                userType={TipoUsuarioEnum.Paciente}
-                                children={<RegisterScheduling />}
-                            />}
-                        />
-                    </Route>
-
                     <Route path="agendamentos"
                         element={<SchedulingMenu />}
                     >
@@ -162,6 +145,30 @@ const PagesRoutes = () => {
                             />}
                         />
                     </Route>
+
+                    <Route path="meus-agendamentos"
+                        element={<PatientSchedulesMenu />}
+                    >
+                        <Route path="listar"
+                            element={<RequireAuth
+                                userType={TipoUsuarioEnum.Paciente}
+                                children={<Schedules />}
+                            />}
+                        />
+                        <Route path="cadastrar"
+                            element={<RequireAuth
+                                userType={TipoUsuarioEnum.Paciente}
+                                children={<RegisterScheduling />}
+                            />}
+                        />
+                    </Route>
+
+                    <Route path="relatorios-consultas"
+                        element={<RequireAuth
+                            userType={TipoUsuarioEnum.Gerente}
+                            children={<Schedules />}
+                        />}
+                    />
 
                     <Route path="*" element={<NotFound />} />
                 </Route>
